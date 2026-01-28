@@ -5,17 +5,7 @@
 
     <change-notes><![CDATA[
       <b>Fixes</b><br/>
-      - Fix possible invalid completion variants when use "Action" string in action name<br/>
-      - Fix possible invalid completion variants when use "Controller" string in controller name<br/>
-      - Fix compatible with `PHP Toolbox plugin` for open "views" on `Ctrl+B`<br/>
-      - Fix `UnsupportedOperationException: This PHP type is immutable` error<br/>
-      <br/>
-
-      <b>Features</b><br/>
-      - Added support "__class" for an object creator<br/>
-
-      <br/>
-      Full <a href="https://github.com/nvlad/yii2support/blob/master/CHANGELOG.md">CHANGELOG</a><br/>
+      - Fix Go to view file (in modules folders)<br/>
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

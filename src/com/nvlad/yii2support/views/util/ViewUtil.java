@@ -263,10 +263,10 @@ public class ViewUtil {
 
         String moduleName = getModuleName(classFQN);
         int controllersIdx = classFQN.indexOf("/controllers");
-        if(moduleName != null && controllersIdx > -1){
-            result.application = moduleName;
-            path = classFQN.substring(controllersIdx+12);
-        }else {
+//        if(moduleName != null && controllersIdx > -1){
+//            result.application = moduleName;
+//            path = classFQN.substring(controllersIdx+12);
+//        }else {
             if (path.startsWith("/modules/")) {
                 key.append("/modules");
                 path = deletePathPart(path);
@@ -283,7 +283,7 @@ public class ViewUtil {
                 result.module = module;
             }
             path = deletePathPart(path);
-        }
+//        }
         key.append("/views");
         if (value.startsWith("/")) {
             result.key = normalizePath(key + value);
