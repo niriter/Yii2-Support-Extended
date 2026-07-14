@@ -1,7 +1,6 @@
 package com.nvlad.yii2support.utils;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -10,7 +9,9 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.MapAnnotation;
 import com.nvlad.yii2support.common.YiiApplicationTemplate;
 import com.nvlad.yii2support.common.YiiApplicationUtils;
+import com.nvlad.yii2support.common.YiiAlias;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
+import com.nvlad.yii2support.views.util.ViewUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -76,6 +77,12 @@ public class Yii2SupportSettings implements PersistentStateComponent<Yii2Support
         }
 
         XmlSerializerUtil.copyBean(settings, this);
+
+        if (myProject != null) {
+            YiiApplicationUtils.resetYiiRootPath(myProject);
+            YiiAlias.getInstance(myProject).reset();
+            ViewUtil.resetPathMapPatterns(myProject);
+        }
     }
 
     public void initProjectConfiguration(Project project) {
@@ -143,6 +150,6 @@ public class Yii2SupportSettings implements PersistentStateComponent<Yii2Support
     }
 
     public static Yii2SupportSettings getInstance(Project project) {
-        return ServiceManager.getService(project, Yii2SupportSettings.class);
+        return project.getService(Yii2SupportSettings.class);
     }
 }

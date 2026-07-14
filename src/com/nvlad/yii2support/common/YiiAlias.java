@@ -1,44 +1,40 @@
 package com.nvlad.yii2support.common;
 
+import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.nvlad.yii2support.utils.Yii2SupportSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public class YiiAlias {
-    private static Map<Project, YiiAlias> yiiProjectAliasMap = new HashMap<>();
-
+@Service(Service.Level.PROJECT)
+public final class YiiAlias {
     public static YiiAlias getInstance(Project project) {
-        if (!yiiProjectAliasMap.containsKey(project)) {
-            yiiProjectAliasMap.put(project, new YiiAlias(project));
-        }
-
-        return yiiProjectAliasMap.get(project);
+        return project.getService(YiiAlias.class);
     }
 
     private final Project myProject;
-    private final Map<String, String> myAliasMap;
-    private final Map<String, String> myResolvedAliasCache;
+    private final ConcurrentMap<String, String> myResolvedAliasCache = new ConcurrentHashMap<>();
+    private volatile Map<String, String> myAliasMap;
 
-    protected YiiAlias(Project project) {
+    public YiiAlias(Project project) {
         myProject = project;
-        myAliasMap = new HashMap<>(new WeakHashMap<>(Yii2SupportSettings.getInstance(project).aliasMap));
-        myResolvedAliasCache = new HashMap<>();
     }
 
     @Nullable
     public String getAlias(@NotNull String alias, boolean console) {
-        return aliasFromMap(myAliasMap, alias, console);
+        return aliasFromMap(getAliasMap(), alias, console);
     }
 
     @Nullable
     public String resolveAlias(@NotNull String alias, boolean console) {
-        String path = myResolvedAliasCache.get(alias);
+        String cacheKey = (console ? "console:" : "web:") + alias;
+        String path = myResolvedAliasCache.get(cacheKey);
         if (path != null) {
             return path;
         }
@@ -49,9 +45,10 @@ public class YiiAlias {
         }
 
         //myResolvedAliasCache.put(alias, StringUtils.stripStart(path, "/"));
-        myResolvedAliasCache.put(alias, path.replaceFirst("^/+", ""));
+        path = path.replaceFirst("^/+", "");
+        myResolvedAliasCache.put(cacheKey, path);
 
-        return myResolvedAliasCache.get(alias);
+        return path;
     }
 
     public VirtualFile resolveVirtualFile(@NotNull String alias, boolean console) {
@@ -62,38 +59,62 @@ public class YiiAlias {
 
         path = YiiApplicationUtils.getYiiRootPath(myProject) + "/" + path;
 
-        return myProject.getBaseDir().getFileSystem().findFileByPath(path);
+        return LocalFileSystem.getInstance().findFileByPath(path);
+    }
+
+    public synchronized void reset() {
+        myAliasMap = null;
+        myResolvedAliasCache.clear();
+    }
+
+    @NotNull
+    private Map<String, String> getAliasMap() {
+        Map<String, String> aliases = myAliasMap;
+        if (aliases != null) {
+            return aliases;
+        }
+
+        synchronized (this) {
+            if (myAliasMap == null) {
+                myAliasMap = Collections.unmodifiableMap(
+                        new HashMap<>(Yii2SupportSettings.getInstance(myProject).aliasMap)
+                );
+            }
+            return myAliasMap;
+        }
     }
 
     @Nullable
     private String aliasFromMap(@NotNull Map<String, String> aliasMap, @NotNull String alias, boolean console) {
-        if (!alias.startsWith("@")) {
-            return alias;
-        }
-
         if (console && alias.startsWith("@app/")) {
-             alias = "@yii2support-console-command-app-root" + alias.substring(4);
+            alias = "@yii2support-console-command-app-root" + alias.substring(4);
         }
 
-        String value = aliasMap.get(alias);
-        if (value != null) {
-            return aliasFromMap(aliasMap, alias, console);
-        }
-
-        String foundAlias = null;
-        for (String aliasKey : aliasMap.keySet()) {
-            if (alias.startsWith(aliasKey)) {
-                if (foundAlias == null || aliasKey.length() > foundAlias.length()) {
-                    foundAlias = aliasKey;
-                }
+        Set<String> visited = new HashSet<>();
+        while (alias.startsWith("@")) {
+            if (!visited.add(alias)) {
+                return null;
             }
+
+            String value = aliasMap.get(alias);
+            if (value == null) {
+                String foundAlias = null;
+                for (String aliasKey : aliasMap.keySet()) {
+                    if (alias.startsWith(aliasKey)
+                            && (foundAlias == null || aliasKey.length() > foundAlias.length())) {
+                        foundAlias = aliasKey;
+                    }
+                }
+
+                if (foundAlias == null) {
+                    return null;
+                }
+                value = aliasMap.get(foundAlias) + alias.substring(foundAlias.length());
+            }
+
+            alias = value;
         }
 
-        if (foundAlias == null) {
-            return null;
-        }
-
-        value = alias.replace(foundAlias, aliasMap.get(foundAlias));
-        return aliasFromMap(aliasMap, value, console);
+        return alias;
     }
 }

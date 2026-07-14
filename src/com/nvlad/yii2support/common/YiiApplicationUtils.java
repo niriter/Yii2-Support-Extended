@@ -1,8 +1,6 @@
 package com.nvlad.yii2support.common;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.nvlad.yii2support.utils.Yii2SupportSettings;
@@ -10,13 +8,7 @@ import com.nvlad.yii2support.views.util.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class YiiApplicationUtils {
-    private static Map<Project, VirtualFile> yiiRootPaths = new HashMap<>();
-
     @Nullable
     public static String getYiiRootPath(Project project) {
         VirtualFile yiiRoot = getYiiRootVirtualFile(project);
@@ -32,7 +24,7 @@ public class YiiApplicationUtils {
     }
 
     public static void resetYiiRootPath(Project project) {
-        yiiRootPaths.remove(project);
+        project.getService(YiiApplicationProjectService.class).resetYiiRootPath();
     }
 
     @NotNull
@@ -111,39 +103,6 @@ public class YiiApplicationUtils {
 
     @Nullable
     public static VirtualFile getYiiRootVirtualFile(Project project, String path) {
-        if (yiiRootPaths.containsKey(project)) {
-            return yiiRootPaths.get(project);
-        }
-
-        VirtualFile yiiRootPath;
-        if (path == null) {
-            yiiRootPath = project.getBaseDir();
-        } else {
-            LocalFileSystem fileSystem = LocalFileSystem.getInstance();
-            yiiRootPath = fileSystem.refreshAndFindFileByPath(path);
-            if (yiiRootPath == null) {
-                yiiRootPath = project.getBaseDir();
-                path = path.replace('\\', '/');
-                if (path.startsWith("./")) {
-                    path = path.substring(2);
-                }
-
-                if (path.startsWith("/")) {
-                    path = path.substring(1);
-                }
-
-                List<String> pathEntries = StringUtil.split(path, "/");
-                for (String pathEntry : pathEntries) {
-                    yiiRootPath = yiiRootPath.findChild(pathEntry);
-                    if (yiiRootPath == null) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        yiiRootPaths.put(project, yiiRootPath);
-
-        return yiiRootPath;
+        return project.getService(YiiApplicationProjectService.class).getYiiRootVirtualFile(path);
     }
 }
