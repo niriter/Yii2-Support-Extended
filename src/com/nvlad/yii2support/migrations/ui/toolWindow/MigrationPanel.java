@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.AnActionButton;
 import com.intellij.ui.CheckboxTree;
+import com.intellij.ui.CheckboxTreeBase;
 import com.intellij.ui.CheckedTreeNode;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
@@ -45,7 +46,11 @@ public class MigrationPanel extends SimpleToolWindowPanel {
     private void initContent() {
         MigrationTreeCellRenderer renderer = new MigrationTreeCellRenderer();
         CheckedTreeNode myRootNode = new CheckedTreeNode();
-        myTree = new CheckboxTree(renderer, myRootNode);
+        myTree = new CheckboxTree(
+                renderer,
+                myRootNode,
+                new CheckboxTreeBase.CheckPolicy(true, true, false, true)
+        );
         myTree.addMouseListener(new MigrationsMouseListener());
         myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 

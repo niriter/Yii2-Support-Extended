@@ -1,9 +1,9 @@
 package com.nvlad.yii2support.migrations.services;
 
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent;
@@ -58,8 +58,8 @@ public final class MigrationsVirtualFileMonitor implements BulkFileListener {
                         return;
                     }
 
-                    boolean migrationCreated = ReadAction.compute(
-                            () -> files.stream().anyMatch(this::isMigrationFile)
+                    boolean migrationCreated = ApplicationManager.getApplication().runReadAction(
+                            (Computable<Boolean>) () -> files.stream().anyMatch(this::isMigrationFile)
                     );
                     if (migrationCreated) {
                         service.syncAsync();

@@ -2,10 +2,10 @@ package com.nvlad.yii2support.migrations.services;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.jetbrains.php.PhpIndex;
@@ -58,7 +58,9 @@ public final class MigrationService implements Disposable {
             return;
         }
 
-        MigrationSnapshot snapshot = ReadAction.compute(this::buildSnapshot);
+        MigrationSnapshot snapshot = ApplicationManager.getApplication().runReadAction(
+                (Computable<MigrationSnapshot>) this::buildSnapshot
+        );
         if (snapshot == null || disposed) {
             return;
         }
