@@ -109,10 +109,7 @@ public class ObjectFactoryContextResolverTest extends TestCase {
     }
 
     public void testUnknownAssociativeArrayHasNoneContextAndNullTarget() {
-        ObjectFactoryContext context = ObjectFactoryContextResolver.decide(
-                ObjectFactoryContext.Source.NONE,
-                null
-        );
+        ObjectFactoryContext context = ObjectFactoryUtils.resolveContext(null, null);
 
         assertEquals(ObjectFactoryContext.Source.NONE, context.getSource());
         assertFalse(context.isConfirmedObjectConfiguration());
