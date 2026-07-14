@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
  * Created by oleg on 14.03.2017.
  */
 public class ObjectFactoryUtils {
+    private static final String EXPRESSION_INTERFACE_FQN = "\\yii\\db\\ExpressionInterface";
+
     @Nullable
     static public PhpClass findClassByArray(@NotNull ArrayCreationExpression arrayCreationExpression) {
         for (ArrayHashElement arrayHashElement : arrayCreationExpression.getHashElements()) {
@@ -166,7 +168,16 @@ public class ObjectFactoryUtils {
         if (phpClass == null) {
             phpClass = getPhpClassInConfig(dir, arrayCreation);
         }
-        return phpClass;
+        return excludeExpressionInterface(phpClass);
+    }
+
+    /**
+     * Array arguments such as Query::orderBy() can be typed as ExpressionInterface.
+     * They are SQL expressions, not Yii object factory configuration arrays.
+     */
+    @Nullable
+    static PhpClass excludeExpressionInterface(@Nullable PhpClass phpClass) {
+        return phpClass != null && EXPRESSION_INTERFACE_FQN.equals(phpClass.getFQN()) ? null : phpClass;
     }
 
     /**

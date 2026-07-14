@@ -3,6 +3,7 @@ Yii2 Support Change Log
 
 Waiting for Release
 -------------------
+- Avoid false-positive Object Factory field inspection for Yii `ExpressionInterface` arrays such as `Query::orderBy()`.
 
 0.10.58.37 - March 4, 2021
 --------------------------
