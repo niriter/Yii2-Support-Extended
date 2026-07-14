@@ -5,8 +5,10 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileEvent;
-import com.intellij.openapi.vfs.VirtualFileListener;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.jetbrains.php.PhpIndex;
@@ -17,7 +19,10 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.nvlad.yii2support.common.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 
-public final class MigrationsVirtualFileMonitor implements VirtualFileListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public final class MigrationsVirtualFileMonitor implements BulkFileListener {
     private final Project project;
     private final MigrationService service;
 
@@ -27,20 +32,40 @@ public final class MigrationsVirtualFileMonitor implements VirtualFileListener {
     }
 
     @Override
-    public void fileCreated(@NotNull VirtualFileEvent event) {
-        VirtualFile file = event.getFile();
+    public void after(@NotNull List<? extends VFileEvent> events) {
+        List<VirtualFile> createdFiles = new ArrayList<>();
+        boolean fileDeleted = false;
+        for (VFileEvent event : events) {
+            if (event instanceof VFileDeleteEvent) {
+                fileDeleted = true;
+            } else if (event instanceof VFileCreateEvent && event.getFile() != null) {
+                createdFiles.add(event.getFile());
+            }
+        }
+
+        if (fileDeleted) {
+            service.syncAsync();
+        }
+        if (!createdFiles.isEmpty()) {
+            checkCreatedFiles(createdFiles);
+        }
+    }
+
+    private void checkCreatedFiles(List<VirtualFile> files) {
         DumbService.getInstance(project).runWhenSmart(() ->
                 ApplicationManager.getApplication().executeOnPooledThread(() -> {
-                    if (!project.isDisposed() && ReadAction.compute(() -> isMigrationFile(file))) {
+                    if (project.isDisposed()) {
+                        return;
+                    }
+
+                    boolean migrationCreated = ReadAction.compute(
+                            () -> files.stream().anyMatch(this::isMigrationFile)
+                    );
+                    if (migrationCreated) {
                         service.syncAsync();
                     }
                 })
         );
-    }
-
-    @Override
-    public void fileDeleted(@NotNull VirtualFileEvent event) {
-        service.syncAsync();
     }
 
     private boolean isMigrationFile(VirtualFile virtualFile) {

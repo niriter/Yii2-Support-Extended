@@ -56,10 +56,10 @@ final class MigrationsToolWindowController implements Disposable {
     private VisibilityLifecycle.Subscription subscribeVisibleListeners() {
         Disposable visibleSession = Disposer.newDisposable("Yii2 migrations visible session");
         migrationService.addListener(this::queueTreeUpdate, visibleSession);
-        VirtualFileManager.getInstance().addVirtualFileListener(
-                new MigrationsVirtualFileMonitor(project),
-                visibleSession
-        );
+        ApplicationManager.getApplication()
+                .getMessageBus()
+                .connect(visibleSession)
+                .subscribe(VirtualFileManager.VFS_CHANGES, new MigrationsVirtualFileMonitor(project));
 
         queueTreeUpdate();
         migrationService.syncAsync();

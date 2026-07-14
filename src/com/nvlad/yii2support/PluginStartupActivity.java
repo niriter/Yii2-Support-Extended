@@ -3,7 +3,6 @@ package com.nvlad.yii2support;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.notification.NotificationGroupManager;
-import com.intellij.notification.NotificationListener;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.ProjectActivity;
@@ -28,7 +27,6 @@ public final class PluginStartupActivity implements ProjectActivity {
                         plugin.getChangeNotes(),
                         NotificationType.INFORMATION
                 )
-                .setListener(NotificationListener.URL_OPENING_LISTENER)
                 .notify(project);
 
         return Unit.INSTANCE;

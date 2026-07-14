@@ -2,6 +2,8 @@ package com.nvlad.yii2support.views.inspections;
 
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectUtil;
+import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -94,14 +96,13 @@ final public class MissedViewInspection extends PhpInspection {
                                 return;
                             }
 
-                            int projectUrlLength = project.getBaseDir().getUrl().length();
-                            String yiiRootUrl = yiiRoot.getUrl();
-                            String path;
-                            if (projectUrlLength > yiiRootUrl.length()) {
-                                path = paths.iterator().next();
-                            } else {
-                                path = yiiRootUrl.substring(projectUrlLength) + paths.iterator().next();
-                            }
+                            VirtualFile projectRoot = ProjectUtil.guessProjectDir(project);
+                            String relativeRoot = projectRoot == null
+                                    ? null
+                                    : VfsUtilCore.getRelativePath(yiiRoot, projectRoot, '/');
+                            String path = relativeRoot == null || relativeRoot.isEmpty()
+                                    ? paths.iterator().next()
+                                    : "/" + relativeRoot + paths.iterator().next();
                             final String viewNotFoundMessage = "View file for \"" + value + "\" not found in \"" + path + "\".";
                             final MissedViewLocalQuickFix quickFix = new MissedViewLocalQuickFix(value, path, RenderUtil.getViewArguments(reference));
                             final PsiElement stringPart = pathParameter.findElementAt(1);

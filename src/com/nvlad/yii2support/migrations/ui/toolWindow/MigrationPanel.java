@@ -10,7 +10,7 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.CheckboxTree;
 import com.intellij.ui.CheckedTreeNode;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.JBUI;
 import com.nvlad.yii2support.migrations.actions.*;
 import com.nvlad.yii2support.migrations.services.MigrationService;
 import com.nvlad.yii2support.migrations.util.TreeUtil;
@@ -50,7 +50,7 @@ public class MigrationPanel extends SimpleToolWindowPanel {
         myTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         JBScrollPane scrollPane = new JBScrollPane(myTree);
-        UIUtil.removeScrollBorder(scrollPane);
+        scrollPane.setBorder(JBUI.Borders.empty());
         setContent(scrollPane);
     }
 

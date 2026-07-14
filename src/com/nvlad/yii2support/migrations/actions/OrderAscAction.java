@@ -24,7 +24,7 @@ public class OrderAscAction extends AnActionButton implements Toggleable {
     public void actionPerformed(AnActionEvent anActionEvent) {
         final Yii2SupportSettings settings = Yii2SupportSettings.getInstance(anActionEvent.getProject());
         settings.newestFirst = !settings.newestFirst;
-        anActionEvent.getPresentation().putClientProperty(SELECTED_PROPERTY, settings.newestFirst);
+        Toggleable.setSelected(anActionEvent.getPresentation(), settings.newestFirst);
 
         MigrationPanel panel = (MigrationPanel) getContextComponent();
         ApplicationManager.getApplication().invokeLater(() -> {
@@ -36,7 +36,7 @@ public class OrderAscAction extends AnActionButton implements Toggleable {
     @Override
     public void updateButton(AnActionEvent e) {
         final Yii2SupportSettings settings = Yii2SupportSettings.getInstance(e.getProject());
-        e.getPresentation().putClientProperty(SELECTED_PROPERTY, settings.newestFirst);
+        Toggleable.setSelected(e.getPresentation(), settings.newestFirst);
 
         super.updateButton(e);
     }

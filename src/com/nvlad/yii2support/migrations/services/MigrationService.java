@@ -115,9 +115,12 @@ public final class MigrationService implements Disposable {
     }
 
     private MigrationSnapshot buildSnapshot() {
-        Collection<PhpClass> migrationClasses;
+        Collection<PhpClass> migrationClasses = new ArrayList<>();
         try {
-            migrationClasses = PhpIndex.getInstance(project).getAllSubclasses("\\yii\\db\\MigrationInterface");
+            PhpIndex.getInstance(project).processAllSubclasses(
+                    "\\yii\\db\\MigrationInterface",
+                    migrationClass -> migrationClasses.add(migrationClass)
+            );
         } catch (IndexNotReadyException exception) {
             return null;
         }

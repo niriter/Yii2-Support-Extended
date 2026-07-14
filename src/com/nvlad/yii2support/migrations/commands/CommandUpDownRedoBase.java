@@ -1,7 +1,7 @@
 package com.nvlad.yii2support.migrations.commands;
 
-import com.intellij.database.dataSource.DataSourceUiUtil;
 import com.intellij.database.dataSource.LocalDataSource;
+import com.intellij.database.model.RawDataSource;
 import com.intellij.database.psi.DbDataSource;
 import com.intellij.database.psi.DbPsiFacade;
 import com.intellij.database.util.DbImplUtil;
@@ -10,6 +10,7 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.nvlad.yii2support.common.YiiCommandLineUtil;
+import com.nvlad.yii2support.migrations.compat.DataSourceSyncCompat;
 import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.entities.Migration;
@@ -165,11 +166,10 @@ abstract class CommandUpDownRedoBase extends CommandBase {
     private void syncDataSources() {
         DbPsiFacade facade = DbPsiFacade.getInstance(myProject);
         for (DbDataSource dataSource : facade.getDataSources()) {
-            if (dataSource.getDelegate() instanceof LocalDataSource) {
-                if (DbImplUtil.isConnected(dataSource)) {
-                    LocalDataSource localDataSource = (LocalDataSource) dataSource.getDelegate();
-                    DataSourceUiUtil.performAutoSyncTask(myProject, localDataSource);
-                }
+            RawDataSource rawDataSource = dataSource.getDelegateDataSource();
+            if (rawDataSource instanceof LocalDataSource
+                    && DbImplUtil.isConnected(myProject, (LocalDataSource) rawDataSource)) {
+                DataSourceSyncCompat.synchronize(myProject, (LocalDataSource) rawDataSource);
             }
         }
     }
