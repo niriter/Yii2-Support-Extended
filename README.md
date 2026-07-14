@@ -1,6 +1,6 @@
-Notes: This fork works for the current PHPStorm Version, although some Features are not working.
+Notes: This fork targets PhpStorm 2024.1 through 2026.1, although some features are still being modernized.
 
-IntelliJ IDEA / PhpStorm Yii2 Support for PHPStorm 2023 - 2026 
+IntelliJ IDEA / PhpStorm Yii2 Support for PhpStorm 2024.1 - 2026.1
 =====================================
 
 Fork of https://github.com/nvlad/yii2support
@@ -120,6 +120,12 @@ Installation
 Contributing
 ------------
 The plugin is [Open Source](LICENSE.md). You may contribute either by testing and or by sending pull requests. 
+
+Development
+-----------
+- Use JDK 17 or newer.
+- Run `./gradlew test buildPlugin` to execute the smoke tests and create the plugin ZIP.
+- Run `./gradlew verifyPlugin` to verify compatibility with PhpStorm 2024.1.7, 2025.1.7.1, and 2026.1.4.
 
 ### Spreading the Word
 Acknowledging and or citing the plugin is as important as direct contributions.
