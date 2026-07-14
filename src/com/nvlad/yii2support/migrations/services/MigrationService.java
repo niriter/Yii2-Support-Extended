@@ -45,13 +45,11 @@ public final class MigrationService implements Disposable {
 
     @NotNull
     public Map<MigrateCommand, Collection<Migration>> getMigrationCommandMap() {
-        ensureInitialized();
         return migrationMap;
     }
 
     @NotNull
     public List<Migration> getMigrations() {
-        ensureInitialized();
         return migrations;
     }
 
@@ -99,17 +97,9 @@ public final class MigrationService implements Disposable {
         });
     }
 
-    public void addListener(@NotNull MigrationServiceListener listener) {
-        listeners.add(listener);
-    }
-
     public void addListener(@NotNull MigrationServiceListener listener, @NotNull Disposable parentDisposable) {
         listeners.add(listener);
         Disposer.register(parentDisposable, () -> listeners.remove(listener));
-    }
-
-    public void removeListener(@NotNull MigrationServiceListener listener) {
-        listeners.remove(listener);
     }
 
     int getListenerCountForTests() {
@@ -122,12 +112,6 @@ public final class MigrationService implements Disposable {
         listeners.clear();
         migrationMap = Collections.emptyMap();
         migrations = Collections.emptyList();
-    }
-
-    private void ensureInitialized() {
-        if (!initialized) {
-            sync();
-        }
     }
 
     private MigrationSnapshot buildSnapshot() {
