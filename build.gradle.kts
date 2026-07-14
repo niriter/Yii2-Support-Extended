@@ -34,11 +34,6 @@ repositories {
 }
 
 dependencies {
-    implementation("io.sentry:sentry:1.7.12") {
-        exclude("org.slf4j", "slf4j-api")
-        exclude("com.fasterxml.jackson.core", "jackson-core")
-    }
-
     testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {

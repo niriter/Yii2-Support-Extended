@@ -135,7 +135,6 @@
                     factoryClass="com.nvlad.yii2support.migrations.ui.toolWindow.MigrationsToolWindowFactory"
                     icon="/icons/migration_tool_window.png"/>
 
-        <errorHandler implementation="com.nvlad.yii2support.errorreport.ErrorReportHandler"/>
     </extensions>
 
     <actions>

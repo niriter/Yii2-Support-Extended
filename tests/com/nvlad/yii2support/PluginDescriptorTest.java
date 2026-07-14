@@ -29,6 +29,8 @@ public class PluginDescriptorTest extends TestCase {
                     plugin.getElementsByTagName("application-components").getLength());
             assertEquals("startup activity must be registered exactly once", 1,
                     plugin.getElementsByTagName("postStartupActivity").getLength());
+            assertEquals("obsolete error submitter must not be registered", 0,
+                    plugin.getElementsByTagName("errorHandler").getLength());
         }
     }
 
