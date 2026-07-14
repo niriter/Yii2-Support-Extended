@@ -3,6 +3,8 @@ Yii2 Support Change Log
 
 Waiting for Release
 -------------------
+- Make Object Factory completion, inspection, and references require a confirmed Yii object-configuration context.
+- Ignore arbitrary object/union-typed method arguments, SQL DSL arrays, and ambiguous or non-configurable nested property arrays.
 - Avoid false-positive Object Factory field inspection for Yii `ExpressionInterface` arrays such as `Query::orderBy()`.
 
 0.10.58.37 - March 4, 2021
