@@ -62,12 +62,13 @@ final class ObjectFactoryContextResolver {
                 return ObjectFactoryContext.confirmed(source, candidateClass);
 
             case NESTED_WRITABLE_PROPERTY:
+            case YII_SETTER:
                 return configurableTarget
                         ? ObjectFactoryContext.confirmed(source, candidateClass)
                         : ObjectFactoryContext.rejected(
                                 source,
                                 candidateClass,
-                                "the writable property type is not a configurable Yii object"
+                                "the writable target type is not a configurable Yii object"
                         );
 
             case METHOD_PARAMETER_TYPE:

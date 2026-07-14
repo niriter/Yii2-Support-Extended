@@ -69,6 +69,35 @@ public class ObjectFactoryContextResolverTest extends TestCase {
         assertNull(dto.getTargetClass());
     }
 
+    public void testYiiSetterIsConfirmedOnlyForUniqueConfigurableType() {
+        ObjectFactoryContext confirmed = ObjectFactoryContextResolver.decide(
+                ObjectFactoryContext.Source.YII_SETTER,
+                component,
+                true,
+                true
+        );
+        assertTrue(confirmed.isConfirmedObjectConfiguration());
+        assertSame(component, confirmed.getTargetClass());
+
+        ObjectFactoryContext ambiguous = ObjectFactoryContextResolver.decide(
+                ObjectFactoryContext.Source.YII_SETTER,
+                component,
+                false,
+                true
+        );
+        assertFalse(ambiguous.isConfirmedObjectConfiguration());
+        assertNull(ambiguous.getTargetClass());
+
+        ObjectFactoryContext dto = ObjectFactoryContextResolver.decide(
+                ObjectFactoryContext.Source.YII_SETTER,
+                component,
+                true,
+                false
+        );
+        assertFalse(dto.isConfirmedObjectConfiguration());
+        assertNull(dto.getTargetClass());
+    }
+
     public void testArbitraryObjectTypedMethodParameterIsRejected() {
         ObjectFactoryContext context = ObjectFactoryContextResolver.decide(
                 ObjectFactoryContext.Source.METHOD_PARAMETER_TYPE,

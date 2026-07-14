@@ -26,7 +26,8 @@ Following class reference representations supported:
  * $field->widget() method call on yii\widgets\ActiveField and its descendants
  * Inside array in GridView "columns" key
  * Nested array assigned to an unambiguous writable property whose type is a yii\base\BaseObject descendant
+ * Yii BaseObject setters with one configurable object type, such as array|Sort|bool or array|Pagination|bool
  
-Object Factory support is context-aware. A generic object or union type on an arbitrary method parameter is not enough to activate completion, inspection, or references. Ordinary associative arrays, SQL DSL arrays, DTO/map data, and ambiguous nested property types are ignored unless one of the positive Yii configuration contexts above is present.
+Object Factory support is context-aware. A generic object or union type on an arbitrary method parameter is not enough to activate completion, inspection, or references. Ordinary associative arrays, SQL DSL arrays, DTO/map data, and ambiguous nested property or setter types are ignored unless one of the positive Yii configuration contexts above is present.
  
 Go To Declaration, Rename, Find usages and Help popup works whenever code completion works

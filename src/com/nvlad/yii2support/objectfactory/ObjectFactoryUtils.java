@@ -9,6 +9,8 @@ import com.nvlad.yii2support.common.ClassUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -206,6 +208,11 @@ public class ObjectFactoryUtils {
             return context;
         }
 
+        context = getContextInYiiSetter(arrayCreation);
+        if (context.getCandidateClass() != null) {
+            return context;
+        }
+
         PsiElement arrayParent = getParent(arrayCreation, 2);
         if (arrayParent instanceof ArrayHashElement) {
             context = getContextByHash((ArrayHashElement) arrayParent, dir);
@@ -280,6 +287,116 @@ public class ObjectFactoryUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Yii setters are a documented object-configuration context. Unlike a
+     * generic method parameter, the method must be a writable-property setter
+     * on a BaseObject descendant and its union must identify exactly one
+     * configurable object target (for example array|Sort|bool).
+     */
+    @NotNull
+    private static ObjectFactoryContext getContextInYiiSetter(ArrayCreationExpression arrayCreation) {
+        if (!(arrayCreation.getParent() instanceof ParameterList)
+                || ClassUtils.indexForElementInParameterList(arrayCreation) != 0) {
+            return ObjectFactoryContext.none();
+        }
+
+        PsiElement possibleMethodReference = getParent(arrayCreation, 2);
+        if (!(possibleMethodReference instanceof MethodReference)) {
+            return ObjectFactoryContext.none();
+        }
+
+        PsiElement resolvedMethod = ((MethodReference) possibleMethodReference).resolve();
+        if (!(resolvedMethod instanceof Method)) {
+            return ObjectFactoryContext.none();
+        }
+
+        Method method = (Method) resolvedMethod;
+        String methodName = method.getName();
+        Parameter[] parameters = method.getParameters();
+        PhpClass containingClass = method.getContainingClass();
+        if (methodName.length() <= 3
+                || !methodName.startsWith("set")
+                || !Character.isUpperCase(methodName.charAt(3))
+                || parameters.length != 1
+                || method.isStatic()
+                || !method.getAccess().isPublic()
+                || !isYiiConfigurableObject(containingClass)) {
+            return ObjectFactoryContext.none();
+        }
+
+        ObjectTypeResolution target = resolveObjectType(parameters[0]);
+        return ObjectFactoryContextResolver.decide(
+                ObjectFactoryContext.Source.YII_SETTER,
+                target.candidateClass,
+                target.unambiguous,
+                isYiiConfigurableObject(target.candidateClass)
+        );
+    }
+
+    @NotNull
+    private static ObjectTypeResolution resolveObjectType(@NotNull PhpNamedElement element) {
+        PhpIndex index = PhpIndex.getInstance(element.getProject());
+        Map<String, PhpClass> objectTypes = new LinkedHashMap<>();
+        boolean supportedUnion = true;
+        boolean hasArrayBranch = false;
+
+        for (String declaredType : element.getType().getTypes()) {
+            for (String type : declaredType.split("\\|")) {
+                String normalizedType = normalizeType(type);
+                if (normalizedType.equals("array")) {
+                    hasArrayBranch = true;
+                    continue;
+                }
+                if (isAllowedConfigurationScalar(normalizedType)) {
+                    continue;
+                }
+
+                PhpClass phpClass = ClassUtils.getClass(index, type.trim());
+                if (phpClass == null) {
+                    supportedUnion = false;
+                    continue;
+                }
+
+                objectTypes.put(phpClass.getFQN(), phpClass);
+            }
+        }
+
+        PhpClass candidateClass = objectTypes.isEmpty()
+                ? null
+                : objectTypes.values().iterator().next();
+        return new ObjectTypeResolution(
+                candidateClass,
+                supportedUnion && hasArrayBranch && objectTypes.size() == 1
+        );
+    }
+
+    @NotNull
+    private static String normalizeType(@NotNull String type) {
+        String normalized = type.trim().toLowerCase();
+        while (normalized.startsWith("?") || normalized.startsWith("\\")) {
+            normalized = normalized.substring(1);
+        }
+        return normalized;
+    }
+
+    private static boolean isAllowedConfigurationScalar(@NotNull String normalizedType) {
+        return normalizedType.equals("bool")
+                || normalizedType.equals("boolean")
+                || normalizedType.equals("false")
+                || normalizedType.equals("true")
+                || normalizedType.equals("null");
+    }
+
+    private static final class ObjectTypeResolution {
+        private final PhpClass candidateClass;
+        private final boolean unambiguous;
+
+        private ObjectTypeResolution(@Nullable PhpClass candidateClass, boolean unambiguous) {
+            this.candidateClass = candidateClass;
+            this.unambiguous = unambiguous;
+        }
     }
 
     @NotNull

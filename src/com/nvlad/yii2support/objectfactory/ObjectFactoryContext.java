@@ -21,6 +21,7 @@ final class ObjectFactoryContext {
         GRID_COLUMN,
         APPLICATION_CONFIG_COMPONENT,
         NESTED_WRITABLE_PROPERTY,
+        YII_SETTER,
         METHOD_PARAMETER_TYPE
     }
 

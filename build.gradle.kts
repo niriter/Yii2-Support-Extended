@@ -13,6 +13,9 @@ val pluginSinceBuild: String by project
 val pluginUntilBuild: String by project
 val pluginVerifierIdeVersions: String by project
 val platformVersion: String by project
+val runPsiIntegrationTest = providers.gradleProperty("psiIntegrationTest")
+    .map(String::toBoolean)
+    .orElse(false)
 
 val verifierIdeVersions = pluginVerifierIdeVersions
     .split(',')
@@ -59,6 +62,9 @@ sourceSets {
     }
     test {
         java.srcDir("tests")
+        if (platformVersion == "2024.1.7") {
+            java.srcDir("tests-psi")
+        }
     }
 }
 
@@ -111,6 +117,18 @@ tasks {
     withType<Test>().configureEach {
         useJUnit()
         systemProperty("idea.load.plugins.id", "com.yii2support")
+    }
+
+    named<Test>("test") {
+        if (runPsiIntegrationTest.get()) {
+            filter {
+                includeTestsMatching("com.nvlad.yii2support.objectfactory.ObjectFactoryContextPsiIntegrationTest")
+            }
+            reports.junitXml.outputLocation.set(layout.buildDirectory.dir("test-results/psiIntegrationTest"))
+            reports.html.outputLocation.set(layout.buildDirectory.dir("reports/tests/psiIntegrationTest"))
+        } else {
+            exclude("**/*PsiIntegrationTest.class")
+        }
     }
 
     register("runPluginVerifier") {
