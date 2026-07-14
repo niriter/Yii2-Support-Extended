@@ -25,6 +25,10 @@ public class PluginDescriptorTest extends TestCase {
             assertEquals("com.yii2support", plugin.getElementsByTagName("id").item(0).getTextContent().trim());
             assertEquals("Yii2 Support", plugin.getElementsByTagName("name").item(0).getTextContent().trim());
             assertTrue("PHP plugin dependency must be declared", hasDependency(plugin, "com.jetbrains.php"));
+            assertEquals("legacy application components must not be registered", 0,
+                    plugin.getElementsByTagName("application-components").getLength());
+            assertEquals("startup activity must be registered exactly once", 1,
+                    plugin.getElementsByTagName("postStartupActivity").getLength());
         }
     }
 

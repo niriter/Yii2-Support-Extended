@@ -9,8 +9,8 @@ import com.intellij.openapi.extensions.PluginId;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.Consumer;
-import com.nvlad.yii2support.PluginApplicationComponent;
 import com.nvlad.yii2support.PluginGlobalSettings;
+import com.nvlad.yii2support.PluginMetadata;
 import io.sentry.SentryClient;
 import io.sentry.SentryClientFactory;
 import io.sentry.connection.EventSendCallback;
@@ -74,7 +74,7 @@ class SentryErrorReporter {
 
         context.addTag("java", SystemInfo.JAVA_RUNTIME_VERSION);
 
-        final IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginApplicationComponent.PLUGIN_ID);
+        final IdeaPluginDescriptor plugin = PluginManager.getPlugin(PluginMetadata.PLUGIN_ID);
         if (plugin != null) {
             sentry.setRelease(plugin.getVersion());
         }
