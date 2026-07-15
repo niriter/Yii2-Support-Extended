@@ -57,7 +57,8 @@ public class ObjectFactoryCompletionProvider extends com.intellij.codeInsight.co
 
         final PhpFile file = (PhpFile) completionParameters.getOriginalFile();
         final PsiDirectory dir = file.getContainingDirectory();
-        final PhpClass phpClass = ObjectFactoryUtils.findClassByArrayCreation(arrayCreation, dir);
+        final ObjectFactoryContext context = ObjectFactoryUtils.resolveContext(arrayCreation, dir);
+        final PhpClass phpClass = context.getTargetClass();
 
         final PsiElement element = completionParameters.getPosition().getParent();
         if (!(element instanceof PhpExpression)) {

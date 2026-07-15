@@ -25,7 +25,8 @@ public class ObjectFactoryReference extends PsiReferenceBase<PsiElement> {
         if (possibleArrayCreation instanceof ArrayCreationExpression) {
             ArrayCreationExpression  arrayCreation = (ArrayCreationExpression)possibleArrayCreation;
             PsiDirectory dir = myElement.getContainingFile().getContainingDirectory();
-            PhpClass phpClass = ObjectFactoryUtils.findClassByArrayCreation(arrayCreation, dir);
+            ObjectFactoryContext context = ObjectFactoryUtils.resolveContext(arrayCreation, dir);
+            PhpClass phpClass = context.getTargetClass();
 
             if (phpClass != null) {
                 return ClassUtils.findWritableField(phpClass, myElement.getText());

@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 public class ViewUtil {
     private static final Set<String> ignoredVariables = getIgnoredVariables();
-    private static final Map<Project, Map<Pattern, String>> projectViewPatterns = new HashMap<>();
 
     public static final String[] renderMethods = {"render", "renderAjax", "renderPartial"};
 
@@ -220,23 +219,12 @@ public class ViewUtil {
     }
 
     public static void resetPathMapPatterns(Project project) {
-        projectViewPatterns.remove(project);
+        project.getService(ViewPatternService.class).reset();
     }
 
     @NotNull
     private static Map<Pattern, String> getPatterns(Project project) {
-        Map<Pattern, String> patterns = projectViewPatterns.get(project);
-        if (patterns == null) {
-            patterns = new LinkedHashMap<>();
-            Yii2SupportSettings settings = Yii2SupportSettings.getInstance(project);
-            for (Map.Entry<String, String> entry : settings.viewPathMap.entrySet()) {
-                String patternString = "^(" + entry.getKey().replace("*", "([\\w-]+)") + ").+";
-                Pattern pattern = Pattern.compile(patternString);
-                patterns.put(pattern, entry.getValue());
-            }
-            projectViewPatterns.put(project, patterns);
-        }
-        return patterns;
+        return project.getService(ViewPatternService.class).getPatterns();
     }
 
     @Nullable

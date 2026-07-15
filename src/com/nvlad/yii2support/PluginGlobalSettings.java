@@ -1,17 +1,15 @@
 package com.nvlad.yii2support;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.Nullable;
 
-@State(name = "Yii2 Support", storages = @Storage(file = "$APP_CONFIG$/yii2support.xml"))
+@State(name = "Yii2 Support", storages = @Storage("yii2support.xml"))
 public class PluginGlobalSettings implements PersistentStateComponent<PluginGlobalSettings> {
     public String version;
-    public String uuid;
-    public String username;
 
     @Nullable
     @Override
@@ -24,7 +22,16 @@ public class PluginGlobalSettings implements PersistentStateComponent<PluginGlob
         XmlSerializerUtil.copyBean(settings, this);
     }
 
+    public synchronized boolean markVersionNotified(String currentVersion) {
+        if (currentVersion.equals(version)) {
+            return false;
+        }
+
+        version = currentVersion;
+        return true;
+    }
+
     public static PluginGlobalSettings getInstance() {
-        return ServiceManager.getService(PluginGlobalSettings.class);
+        return ApplicationManager.getApplication().getService(PluginGlobalSettings.class);
     }
 }

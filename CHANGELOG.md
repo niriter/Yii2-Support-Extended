@@ -1,8 +1,20 @@
-Yii2 Support Change Log
-=======================
+Yii2 Navigator Change Log
+=========================
 
-Waiting for Release
--------------------
+1.0.0 - July 15, 2026
+----------------------
+- First community-maintained Yii2 Navigator release.
+- Support PhpStorm 2024.1, 2025.1, and 2026.1.
+- Replace legacy application lifecycle components with modern services and startup activities.
+- Scope Yii aliases, project roots, view patterns, and migration state to project services.
+- Modernize migrations tool window lifecycle and listener disposal.
+- Remove obsolete Sentry reporting and telemetry-related state.
+- Replace deprecated lifecycle, popup, content factory, and datasource synchronization APIs.
+- Make Object Factory completion, inspection, and references require a confirmed Yii object-configuration context.
+- Ignore arbitrary object/union-typed method arguments, SQL DSL arrays, and ambiguous or non-configurable nested property arrays.
+- Preserve Yii BaseObject setter configurations such as `setSort(array|Sort|bool)` and `setPagination(array|Pagination|bool)`.
+- Avoid false-positive Object Factory field inspection for Yii `ExpressionInterface` arrays such as `Query::orderBy()`.
+- Clarify ActiveRecord property inspection messages and report them as regular warnings.
 
 0.10.58.37 - March 4, 2021
 --------------------------

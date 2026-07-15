@@ -4,4 +4,5 @@ yii2support.jar
 yii2support.zip
 /build
 /.gradle/
+/.intellijPlatform/
 /bin/*

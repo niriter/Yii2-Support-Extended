@@ -27,7 +27,8 @@ public class ObjectFactoryMissedFieldInspection extends PhpInspection {
             @Override
             public void visitPhpArrayCreationExpression(ArrayCreationExpression expression) {
                 PsiDirectory dir = expression.getContainingFile().getContainingDirectory();
-                PhpClass phpClass = ObjectFactoryUtils.findClassByArrayCreation(expression, dir);
+                ObjectFactoryContext context = ObjectFactoryUtils.resolveContext(expression, dir);
+                PhpClass phpClass = context.getTargetClass();
                 if (phpClass != null && !phpClass.getFQN().equals("\\" + phpClass.getName())) { // Avoid System Classes: \Closure, \ArrayAccess
                     for (ArrayHashElement elem: expression.getHashElements()) {
                         PsiElement key = elem.getKey();

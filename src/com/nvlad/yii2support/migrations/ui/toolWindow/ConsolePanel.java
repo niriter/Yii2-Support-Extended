@@ -2,6 +2,7 @@ package com.nvlad.yii2support.migrations.ui.toolWindow;
 
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -10,7 +11,7 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 
 import javax.swing.*;
 
-public class ConsolePanel extends SimpleToolWindowPanel {
+public class ConsolePanel extends SimpleToolWindowPanel implements Disposable {
     private final ConsoleView myConsoleView;
 
     public ConsolePanel(Project project) {
@@ -29,5 +30,10 @@ public class ConsolePanel extends SimpleToolWindowPanel {
 
     public ConsoleView getConsoleView() {
         return myConsoleView;
+    }
+
+    @Override
+    public void dispose() {
+        myConsoleView.dispose();
     }
 }

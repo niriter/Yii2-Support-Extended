@@ -1,7 +1,8 @@
-Yii2 Support is free software. It is released under the terms of
-the following BSD License.
+Yii2 Navigator is a community-maintained fork of Yii2 Support and is
+released under the terms of the following BSD License.
 
 Copyright © 2017 by Vladislav Nikishin aka NVlad (wildvampir@gmail.com)
+Modifications copyright © 2026 by meekitak and Yii2 Navigator contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
