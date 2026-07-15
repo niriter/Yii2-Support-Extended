@@ -8,10 +8,3 @@
  */
 
 rootProject.name = 'yii2-navigator'
-
-buildCache {
-    local {
-        // Set local build cache directory.
-        directory = "${settingsDir}/build-cache"
-    }
-}
