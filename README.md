@@ -127,6 +127,12 @@ Development
 - Run `./gradlew test buildPlugin` to execute the smoke tests and create the plugin ZIP.
 - Run `./gradlew verifyPlugin` to verify compatibility with PhpStorm 2024.1.7, 2025.1.7.1, and 2026.1.4.
 
+Releasing
+---------
+- Push a version tag such as `v1.1.0`.
+- GitHub Actions tests the tagged sources, creates an installable plugin ZIP with version `1.1.0`, and attaches it to the corresponding GitHub Release.
+- Publishing a GitHub Release manually also builds and attaches the ZIP if it is not already present.
+
 ### Spreading the Word
 Acknowledging and or citing the plugin is as important as direct contributions.
 
