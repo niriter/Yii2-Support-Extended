@@ -54,7 +54,7 @@ public class PropertiesInspection extends PhpInspection {
                             for (PhpDocPropertyTag tag: unusedProperties) {
                                 problemsHolder.registerProblem(tag,
                                         "Property does not correspond to a database column or declared accessor in class " + phpClass.getFQN(),
-                                        ProblemHighlightType.LIKE_UNUSED_SYMBOL);
+                                        ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
                             }
                         }
                     }
