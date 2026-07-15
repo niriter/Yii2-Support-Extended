@@ -1,11 +1,16 @@
-<idea-plugin>
-    <id>com.yii2support</id>
-    <name>Yii2 Support</name>
-    <vendor email="support@nvlad.com" url="http://nvlad.com">NVlad</vendor>
+<idea-plugin url="https://github.com/niriter/Yii2-Support-Extended">
+    <id>com.meekitak.yii2navigator</id>
+    <name>Yii2 Navigator</name>
+    <vendor email="pro100.vce@gmail.com" url="https://github.com/niriter">meekitak</vendor>
+
+    <incompatible-with>com.yii2support</incompatible-with>
 
     <change-notes><![CDATA[
-      <b>Fixes</b><br/>
-      - Fix Go to view file (in modules folders)<br/>
+      <b>Yii2 Navigator 1.0.0</b><br/>
+      - First community-maintained release of the Yii2 Support fork.<br/>
+      - Supports PhpStorm 2024.1, 2025.1, and 2026.1.<br/>
+      - Modernized plugin and project lifecycle management.<br/>
+      - Preserved Yii Object Factory and PHP PSI integrations.<br/>
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -30,10 +35,10 @@
         <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
         <applicationService serviceImplementation="com.nvlad.yii2support.PluginGlobalSettings"/>
         <postStartupActivity implementation="com.nvlad.yii2support.PluginStartupActivity"/>
-        <notificationGroup id="Yii2 Support" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+        <notificationGroup id="Yii2 Navigator" displayType="STICKY_BALLOON" isLogByDefault="true"/>
 
         <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
-                             displayName="Yii2 Support"
+                             displayName="Yii2 Navigator"
                              id="Yii2Support.SettingsForm"
                              parentId="reference.webide.settings.project.settings.php"/>
         <!-- Views -->

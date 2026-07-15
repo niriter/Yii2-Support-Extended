@@ -22,8 +22,11 @@ public class PluginDescriptorTest extends TestCase {
             Element plugin = descriptor.getDocumentElement();
 
             assertEquals("idea-plugin", plugin.getTagName());
-            assertEquals("com.yii2support", plugin.getElementsByTagName("id").item(0).getTextContent().trim());
-            assertEquals("Yii2 Support", plugin.getElementsByTagName("name").item(0).getTextContent().trim());
+            assertEquals("com.meekitak.yii2navigator", plugin.getElementsByTagName("id").item(0).getTextContent().trim());
+            assertEquals("Yii2 Navigator", plugin.getElementsByTagName("name").item(0).getTextContent().trim());
+            assertEquals("meekitak", plugin.getElementsByTagName("vendor").item(0).getTextContent().trim());
+            assertEquals("com.yii2support",
+                    plugin.getElementsByTagName("incompatible-with").item(0).getTextContent().trim());
             assertTrue("PHP plugin dependency must be declared", hasDependency(plugin, "com.jetbrains.php"));
             assertEquals("legacy application components must not be registered", 0,
                     plugin.getElementsByTagName("application-components").getLength());
@@ -32,6 +35,13 @@ public class PluginDescriptorTest extends TestCase {
             assertEquals("obsolete error submitter must not be registered", 0,
                     plugin.getElementsByTagName("errorHandler").getLength());
         }
+    }
+
+    public void testMarketplaceResourcesArePackaged() {
+        assertNotNull("pluginIcon.svg must be available on the plugin classpath",
+                getClass().getResource("/META-INF/pluginIcon.svg"));
+        assertNotNull("BSD license must be included in the plugin distribution",
+                getClass().getResource("/META-INF/LICENSE.md"));
     }
 
     private static boolean hasDependency(Element plugin, String pluginId) {

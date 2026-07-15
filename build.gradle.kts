@@ -1,6 +1,7 @@
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginSignatureTask
 
 plugins {
     id("java")
@@ -16,6 +17,8 @@ val platformVersion: String by project
 val runPsiIntegrationTest = providers.gradleProperty("psiIntegrationTest")
     .map(String::toBoolean)
     .orElse(false)
+val signingCertificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
+val verificationCertificateChainFile = layout.buildDirectory.file("signing/certificate-chain.pem")
 
 val verifierIdeVersions = pluginVerifierIdeVersions
     .split(',')
@@ -23,7 +26,7 @@ val verifierIdeVersions = pluginVerifierIdeVersions
     .filter(String::isNotEmpty)
     .map { it.removePrefix("PS-") }
 
-group = "com.nvlad"
+group = "com.meekitak"
 version = pluginVersion
 
 repositories {
@@ -93,15 +96,49 @@ intellijPlatform {
         }
     }
 
+    signing {
+        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
+        privateKey = providers.environmentVariable("PRIVATE_KEY")
+        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
+    }
+
     publishing {
         token = providers.environmentVariable("PUBLISH_TOKEN")
-        channels = listOf("beta")
+        channels = listOf("default")
     }
 }
 
 tasks {
+    val preparePluginSignatureVerification = register("preparePluginSignatureVerification") {
+        description = "Writes the certificate chain to a file for signature verification."
+        outputs.file(verificationCertificateChainFile)
+        outputs.upToDateWhen { false }
+        onlyIf { signingCertificateChain.isPresent }
+
+        doLast {
+            verificationCertificateChainFile.get().asFile.apply {
+                parentFile.mkdirs()
+                writeText(signingCertificateChain.get())
+            }
+        }
+    }
+
+    named<VerifyPluginSignatureTask>("verifyPluginSignature") {
+        // IntelliJ Platform Gradle Plugin 2.18.1 passes certificate content as an
+        // extra CLI argument; its file-based verifier path works correctly.
+        dependsOn("signPlugin", preparePluginSignatureVerification)
+        certificateChain.unsetConvention()
+        certificateChainFile.set(verificationCertificateChainFile)
+    }
+
     named<Zip>("buildPlugin") {
-        archiveFileName = "yii2support.zip"
+        archiveFileName = "yii2-navigator-${pluginVersion}.zip"
+    }
+
+    processResources {
+        from("LICENSE.md") {
+            into("META-INF")
+        }
     }
 
     withType<JavaCompile>().configureEach {
@@ -112,7 +149,7 @@ tasks {
 
     withType<Test>().configureEach {
         useJUnit()
-        systemProperty("idea.load.plugins.id", "com.yii2support")
+        systemProperty("idea.load.plugins.id", "com.meekitak.yii2navigator")
     }
 
     named<Test>("test") {

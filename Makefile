@@ -1,5 +1,5 @@
-IMAGE_NAME = yii2-support-plugin
-CONTAINER_NAME = yii2-support-plugin-tmp
+IMAGE_NAME = yii2-navigator-plugin
+CONTAINER_NAME = yii2-navigator-plugin-tmp
 DIST_DIR = build
 
 .PHONY: build docker-build extract clean

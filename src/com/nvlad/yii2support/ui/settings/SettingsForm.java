@@ -35,7 +35,7 @@ public class SettingsForm implements Configurable {
     @Nls
     @Override
     public String getDisplayName() {
-        return "Yii2 Support";
+        return "Yii2 Navigator";
     }
 
     @Nullable

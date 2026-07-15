@@ -92,7 +92,7 @@ jobs:
         if: matrix.publish-artifact
         uses: actions/upload-artifact@v7
         with:
-          name: yii2-support-plugin
+          name: yii2-navigator-plugin
           path: build/distributions/*.zip
           if-no-files-found: error
           retention-days: 14

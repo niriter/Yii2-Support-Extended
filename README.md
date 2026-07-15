@@ -1,9 +1,9 @@
-Notes: This fork targets PhpStorm 2024.1 through 2026.1, although some features are still being modernized.
+Yii2 Navigator
+==============
 
-IntelliJ IDEA / PhpStorm Yii2 Support for PhpStorm 2024.1 - 2026.1
-=====================================
+Yii2 development tools for PhpStorm 2024.1 through 2026.1 and compatible IntelliJ IDEA Ultimate releases.
 
-Fork of https://github.com/nvlad/yii2support
+This is an unofficial community-maintained fork of [Yii2 Support](https://github.com/nvlad/yii2support).
 
 Features
 --------
