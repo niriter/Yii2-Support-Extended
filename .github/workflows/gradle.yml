@@ -38,12 +38,15 @@ jobs:
           - platform-version: "2024.1.7"
             java-version: "17"
             publish-artifact: true
+            gradle-tasks: "test psiIntegrationTest buildPlugin"
           - platform-version: "2025.1.7.1"
             java-version: "21"
             publish-artifact: false
+            gradle-tasks: "test buildPlugin"
           - platform-version: "2026.1.4"
             java-version: "21"
             publish-artifact: false
+            gradle-tasks: "test buildPlugin"
 
     steps:
       - name: Check out sources
@@ -63,17 +66,7 @@ jobs:
           ./gradlew
           --stacktrace
           -PplatformVersion=${{ matrix.platform-version }}
-          test
-          buildPlugin
-
-      - name: Run PHP PSI integration tests
-        if: matrix.platform-version == '2024.1.7'
-        run: >-
-          ./gradlew
-          --stacktrace
-          -PplatformVersion=${{ matrix.platform-version }}
-          -PpsiIntegrationTest=true
-          test
+          ${{ matrix.gradle-tasks }}
 
       - name: Upload test results
         if: always()

@@ -14,9 +14,6 @@ val pluginSinceBuild: String by project
 val pluginUntilBuild: String by project
 val pluginVerifierIdeVersions: String by project
 val platformVersion: String by project
-val runPsiIntegrationTest = providers.gradleProperty("psiIntegrationTest")
-    .map(String::toBoolean)
-    .orElse(false)
 val signingCertificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
 val verificationCertificateChainFile = layout.buildDirectory.file("signing/certificate-chain.pem")
 
@@ -108,6 +105,26 @@ intellijPlatform {
     }
 }
 
+val psiIntegrationTest by intellijPlatformTesting.testIde.registering {
+    testFramework(TestFrameworkType.Bundled)
+
+    task {
+        val testSourceSet = sourceSets.getByName("test")
+
+        group = "verification"
+        description = "Runs PHP PSI integration tests against PhpStorm 2024.1.7."
+        testClassesDirs = testClassesDirs + testSourceSet.output.classesDirs
+        classpath = classpath + testSourceSet.runtimeClasspath
+        shouldRunAfter(tasks.named("test"))
+        onlyIf("PHP PSI integration tests require PhpStorm 2024.1.7") {
+            platformVersion == "2024.1.7"
+        }
+        include("**/*PsiIntegrationTest.class")
+        reports.junitXml.outputLocation.set(layout.buildDirectory.dir("test-results/psiIntegrationTest"))
+        reports.html.outputLocation.set(layout.buildDirectory.dir("reports/tests/psiIntegrationTest"))
+    }
+}
+
 tasks {
     val preparePluginSignatureVerification = register("preparePluginSignatureVerification") {
         description = "Writes the certificate chain to a file for signature verification."
@@ -153,15 +170,7 @@ tasks {
     }
 
     named<Test>("test") {
-        if (runPsiIntegrationTest.get()) {
-            filter {
-                includeTestsMatching("com.nvlad.yii2support.objectfactory.ObjectFactoryContextPsiIntegrationTest")
-            }
-            reports.junitXml.outputLocation.set(layout.buildDirectory.dir("test-results/psiIntegrationTest"))
-            reports.html.outputLocation.set(layout.buildDirectory.dir("reports/tests/psiIntegrationTest"))
-        } else {
-            exclude("**/*PsiIntegrationTest.class")
-        }
+        exclude("**/*PsiIntegrationTest.class")
     }
 
     register("runPluginVerifier") {
