@@ -95,7 +95,7 @@
         <localInspection language="PHP" shortName="PropertiesInspection"
                          displayName="Missing property"
                          groupName="Database" groupPath="PHP,Framework,Yii2"
-                         enabledByDefault="true" level="ERROR"
+                         enabledByDefault="true" level="WARNING"
                          implementationClass="com.nvlad.yii2support.properties.PropertiesInspection"/>
         <localInspection language="PHP" shortName="UndetectableTableInspection"
                          displayName="Undetectable table for ActiveRecord"

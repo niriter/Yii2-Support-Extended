@@ -52,7 +52,9 @@ public class PropertiesInspection extends PhpInspection {
                         ArrayList<PhpDocPropertyTag> unusedProperties = DatabaseUtils.getUnusedProperties(table, docComment.getPropertyTags(), phpClass);
                         if (unusedProperties.size() > 0) {
                             for (PhpDocPropertyTag tag: unusedProperties) {
-                                problemsHolder.registerProblem(tag, "Property is unused in class " + phpClass.getFQN(), ProblemHighlightType.LIKE_UNUSED_SYMBOL);
+                                problemsHolder.registerProblem(tag,
+                                        "Property does not correspond to a database column or declared accessor in class " + phpClass.getFQN(),
+                                        ProblemHighlightType.LIKE_UNUSED_SYMBOL);
                             }
                         }
                     }
