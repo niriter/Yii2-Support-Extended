@@ -99,7 +99,7 @@ jobs:
 
   plugin-verifier:
     name: Plugin Verifier / PhpStorm ${{ matrix.platform-version }}
-    needs: build-and-test
+    needs: validate-wrapper
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
