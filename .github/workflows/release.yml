@@ -62,18 +62,21 @@ jobs:
           fi
 
           echo "plugin_version=$plugin_version" >> "$GITHUB_OUTPUT"
-          echo "archive=build/distributions/yii2-navigator-$plugin_version.zip" >> "$GITHUB_OUTPUT"
+          echo "archive=build/distributions/yii2-navigator-$plugin_version-signed.zip" >> "$GITHUB_OUTPUT"
 
-      - name: Run tests and build plugin
+      - name: Run tests, build, sign, and verify plugin
         env:
           PLUGIN_VERSION: ${{ steps.release.outputs.plugin_version }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: >-
           ./gradlew
           --stacktrace
           "-PpluginVersion=$PLUGIN_VERSION"
           test
           psiIntegrationTest
-          buildPlugin
+          signPlugin
+          verifyPluginSignature
 
       - name: Create or update GitHub Release
         env:
