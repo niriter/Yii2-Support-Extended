@@ -6,11 +6,11 @@
     <incompatible-with>com.yii2support</incompatible-with>
 
     <change-notes><![CDATA[
-      <b>Yii2 Navigator 1.0.2</b><br/>
+      <b>Yii2 Navigator 1.0.3</b><br/>
       <ul>
         <li>Maintenance release with no plugin functionality changes.</li>
-        <li>Plugin distributions are now signed and verified before being attached to GitHub releases.</li>
-        <li>Release archives are built and tested automatically for supported PhpStorm versions.</li>
+        <li>Signed plugin releases are now published automatically to JetBrains Marketplace.</li>
+        <li>The GitHub Release and Marketplace upload use the same verified signed archive.</li>
       </ul>
     ]]></change-notes>
 

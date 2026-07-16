@@ -105,3 +105,15 @@ jobs:
           fi
 
           gh release upload "$RELEASE_TAG" "$ARCHIVE_PATH"
+
+      - name: Publish plugin to JetBrains Marketplace
+        env:
+          PLUGIN_VERSION: ${{ steps.release.outputs.plugin_version }}
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: >-
+          ./gradlew
+          --stacktrace
+          "-PpluginVersion=$PLUGIN_VERSION"
+          publishPlugin

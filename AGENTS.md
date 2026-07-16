@@ -5,11 +5,12 @@
 Whenever a task creates, prepares, retries, or publishes a new plugin release, the agent must complete the following checklist before creating or pushing the release tag.
 
 1. Determine the release version from the intended Git tag. A tag such as `v1.2.3` produces plugin version `1.2.3`.
-2. Add a section for that exact version and the current release date near the top of `CHANGELOG.md`.
-3. Update `<change-notes>` in `resources/META-INF/plugin.xml` for that exact version.
-4. Keep `<change-notes>` limited to the current release. JetBrains Marketplace preserves notes for older uploaded versions, so old release notes do not need to remain in `plugin.xml`.
-5. Describe user-visible changes clearly. If the release contains only build, signing, packaging, or CI changes, explicitly state that there are no plugin functionality changes.
-6. Never reuse stale notes or leave a version number in `<change-notes>` that differs from the version being released.
+2. Set `pluginVersion` in `gradle.properties` to that exact version.
+3. Add a section for that exact version and the current release date near the top of `CHANGELOG.md`.
+4. Update `<change-notes>` in `resources/META-INF/plugin.xml` for that exact version.
+5. Keep `<change-notes>` limited to the current release. JetBrains Marketplace preserves notes for older uploaded versions, so old release notes do not need to remain in `plugin.xml`.
+6. Describe user-visible changes clearly. If the release contains only build, signing, packaging, or CI changes, explicitly state that there are no plugin functionality changes.
+7. Never reuse stale notes or leave a version number in `<change-notes>` that differs from the version being released.
 
 Before creating or pushing the tag, validate the release metadata:
 
@@ -23,6 +24,7 @@ Then inspect `build/tmp/patchPluginXml/plugin.xml` and confirm that:
 - `<version>` equals the tag version without the `v` prefix;
 - `<change-notes>` describes the same version;
 - `CHANGELOG.md` contains the same version and release date.
+- `pluginVersion` in `gradle.properties` equals the same version.
 
 The release workflow must build, sign, and verify the plugin with `signPlugin` and `verifyPluginSignature`, and it must attach the resulting `*-signed.zip` archive to the GitHub Release. After the workflow completes, confirm that the release asset is signed and that its checksum matches the GitHub asset digest.
 

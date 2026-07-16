@@ -1,5 +1,7 @@
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.intellij.platform.gradle.tasks.PublishPluginTask
+import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginSignatureTask
 
@@ -146,6 +148,11 @@ tasks {
         dependsOn("signPlugin", preparePluginSignatureVerification)
         certificateChain.unsetConvention()
         certificateChainFile.set(verificationCertificateChainFile)
+    }
+
+    named<PublishPluginTask>("publishPlugin") {
+        // Always publish the same signed archive that is attached to the GitHub Release.
+        archiveFile.set(named<SignPluginTask>("signPlugin").flatMap { it.signedArchiveFile })
     }
 
     named<Zip>("buildPlugin") {

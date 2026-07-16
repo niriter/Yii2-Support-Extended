@@ -1,6 +1,12 @@
 Yii2 Navigator Change Log
 =========================
 
+1.0.3 - July 16, 2026
+----------------------
+- Publish signed plugin releases to JetBrains Marketplace automatically.
+- Use the same verified signed archive for GitHub Releases and Marketplace uploads.
+- No plugin functionality changes.
+
 1.0.2 - July 16, 2026
 ----------------------
 - Sign plugin distribution archives before attaching them to GitHub releases.
