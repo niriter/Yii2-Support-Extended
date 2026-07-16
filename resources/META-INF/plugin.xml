@@ -92,22 +92,22 @@
         <fileBasedIndex implementation="com.nvlad.yii2support.i18n.TranslationUsageIndex"
                         id="yii2-translation-usages-index"/>
         <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.i18n.CompletionContributor"/>
-        <localInspection language="PHP" shortName="Yii2NavigatorUnknownTranslation"
+        <localInspection language="PHP" shortName="Yii2NavigatorUnknownTranslationInspection"
                          displayName="Unknown translation message"
                          groupName="i18n" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorUnknownTranslationInspection"/>
-        <localInspection language="PHP" shortName="Yii2NavigatorInterpolatedTranslationMessage"
+        <localInspection language="PHP" shortName="Yii2NavigatorInterpolatedTranslationMessageInspection"
                          displayName="Interpolated translation message"
                          groupName="i18n" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorInterpolatedTranslationMessageInspection"/>
-        <localInspection language="PHP" shortName="Yii2NavigatorMissingTranslations"
+        <localInspection language="PHP" shortName="Yii2NavigatorMissingTranslationsInspection"
                          displayName="Missing translations"
                          groupName="i18n" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="ERROR"
                          implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorMissingTranslationsInspection"/>
-        <localInspection language="PHP" shortName="Yii2NavigatorUnusedTranslations"
+        <localInspection language="PHP" shortName="Yii2NavigatorUnusedTranslationsInspection"
                          displayName="Unused translations"
                          groupName="i18n" groupPath="PHP,Framework,Yii2"
                          enabledByDefault="true" level="WEAK WARNING"
