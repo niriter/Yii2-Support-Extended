@@ -6,7 +6,6 @@ import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.jetbrains.php.lang.psi.elements.ClassReference;
 import com.jetbrains.php.lang.psi.elements.MethodReference;
 import com.jetbrains.php.lang.psi.elements.ParameterList;
 import com.nvlad.yii2support.common.Patterns;
@@ -23,11 +22,7 @@ public class CompletionContributor extends com.intellij.codeInsight.completion.C
     @Override
     public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
         MethodReference reference = PsiTreeUtil.getParentOfType(position, MethodReference.class);
-        if (reference != null && reference.getName() != null && reference.getName().equals("t") && reference.getClassReference() instanceof ClassReference) {
-            ClassReference classReference = (ClassReference) reference.getClassReference();
-            if (classReference == null || classReference.getName() == null || !classReference.getName().equals("Yii")) {
-                return false;
-            }
+        if (reference != null && TranslationCallResolver.isTranslationMethod(reference)) {
             if (typeChar == '\'' || typeChar == '"') {
                 if (position instanceof LeafPsiElement && (position.getText().equals("$category") || position.getText().equals("$message"))) {
                     return true;

@@ -1,6 +1,15 @@
 Yii2 Navigator Change Log
 =========================
 
+1.1.0 - July 16, 2026
+----------------------
+- Add inspections for unknown and interpolated messages in literal `Yii::t()` calls.
+- Report messages that are missing from PHP translation providers.
+- Report possibly unused keys from PHP translation providers as weak warnings.
+- Index translation keys and literal PHP usages for project-wide inspection results.
+- Use the same indexed provider catalog for category and message completion under both `messages/<locale>` and `translations/<locale>` roots.
+- Keep translation lookup for dynamic category/message expressions and non-PHP usages outside this initial i18n inspection release.
+
 1.0.3 - July 16, 2026
 ----------------------
 - Publish signed plugin releases to JetBrains Marketplace automatically.

@@ -2,60 +2,103 @@ package com.nvlad.yii2support.i18n;
 
 import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
-import com.jetbrains.php.lang.psi.elements.*;
+import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
+import com.jetbrains.php.lang.psi.elements.MethodReference;
+import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Created by NVlad on 06.01.2017.
- */
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 class CompletionProvider extends com.intellij.codeInsight.completion.CompletionProvider<CompletionParameters> {
     @Override
-    protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context, @NotNull CompletionResultSet result) {
-        PhpPsiElement psiElement = (PhpPsiElement) parameters.getPosition().getParent();
+    protected void addCompletions(
+            @NotNull CompletionParameters parameters,
+            @NotNull ProcessingContext context,
+            @NotNull CompletionResultSet result
+    ) {
+        MethodReference reference = PsiTreeUtil.getParentOfType(
+                parameters.getPosition(),
+                MethodReference.class
+        );
+        if (reference == null || !TranslationCallResolver.isTranslationMethod(reference)) {
+            return;
+        }
 
-        MethodReference methodReference = (MethodReference) psiElement.getParent().getParent();
-        PhpExpression classReference = methodReference.getClassReference();
-        if (classReference != null && classReference.getName() != null) {
-            if (methodReference.isStatic() && classReference.getName().equals("Yii")) {
-                String methodName = methodReference.getName();
-                if (methodName != null && methodReference.getParameterList() != null) {
-                    PsiElement[] methodParameters = methodReference.getParameterList().getParameters();
+        Project project = reference.getProject();
+        if (DumbService.isDumb(project)) {
+            return;
+        }
 
-                    int parameterIndex = -1;
-                    for (int i = 0; i < methodParameters.length; i++) {
-                        if (psiElement == methodParameters[i]) {
-                            parameterIndex = i;
-                            break;
-                        }
-                    }
+        PsiElement[] methodParameters = reference.getParameters();
+        int parameterIndex = findParameterIndex(methodParameters, parameters.getPosition());
+        if (parameterIndex == 0) {
+            fillCategories(project, result);
+            return;
+        }
 
-                    switch (parameterIndex) {
-                        case 0:
-                            fillCategories(psiElement, result);
-                            break;
-                        case 1:
-                            if (methodParameters[0] instanceof StringLiteralExpression) {
-                                String category = ((StringLiteralExpression) methodParameters[0]).getContents();
-                                fillMessages(psiElement, category, result);
-                            }
-                            break;
-                    }
-                }
-            }
+        if (parameterIndex != 1 || !(methodParameters[1] instanceof PhpPsiElement messageElement)) {
+            return;
+        }
+
+        String category = TranslationCallResolver.resolveStaticCategory(methodParameters[0]);
+        if (category != null) {
+            fillMessages(project, messageElement, category, result);
         }
     }
 
-    private void fillCategories(PhpPsiElement element, CompletionResultSet result) {
-        for (PsiElement category : Util.getCategories(element)) {
+    private static int findParameterIndex(PsiElement[] parameters, PsiElement position) {
+        for (int i = 0; i < parameters.length; i++) {
+            if (PsiTreeUtil.isAncestor(parameters[i], position, false)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static void fillCategories(Project project, CompletionResultSet result) {
+        for (String category : TranslationKeyIndex.getCategories(project)) {
             result.addElement(new CategoryLookupElement(category));
         }
     }
 
-    private void fillMessages(PhpPsiElement element, String category, CompletionResultSet result) {
-        for (ArrayHashElement message : Util.getMessages(element, category)) {
-            result.addElement(new MessageLookupElement(element, message));
+    private static void fillMessages(
+            Project project,
+            PhpPsiElement messageElement,
+            String category,
+            CompletionResultSet result
+    ) {
+        List<VirtualFile> providerFiles = new ArrayList<>(
+                TranslationKeyIndex.getProviderFiles(project, category)
+        );
+        providerFiles.sort(Comparator.comparing(VirtualFile::getPath));
+
+        PsiManager psiManager = PsiManager.getInstance(project);
+        Set<String> addedMessages = new HashSet<>();
+        for (VirtualFile providerFile : providerFiles) {
+            PsiFile file = psiManager.findFile(providerFile);
+            TranslationProvider provider = file == null ? null : TranslationProviderUtil.resolve(file);
+            if (provider == null) {
+                continue;
+            }
+
+            for (ArrayHashElement message : provider.array().getHashElements()) {
+                String key = TranslationProviderUtil.resolveStaticMessageKey(message.getKey());
+                if (key != null && addedMessages.add(key)) {
+                    result.addElement(new MessageLookupElement(messageElement, message));
+                }
+            }
         }
     }
 }

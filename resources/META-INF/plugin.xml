@@ -6,11 +6,13 @@
     <incompatible-with>com.yii2support</incompatible-with>
 
     <change-notes><![CDATA[
-      <b>Yii2 Navigator 1.0.3</b><br/>
+      <b>Yii2 Navigator 1.1.0</b><br/>
       <ul>
-        <li>Maintenance release with no plugin functionality changes.</li>
-        <li>Signed plugin releases are now published automatically to JetBrains Marketplace.</li>
-        <li>The GitHub Release and Marketplace upload use the same verified signed archive.</li>
+        <li>Add inspections for unknown and interpolated messages in literal <code>Yii::t()</code> calls.</li>
+        <li>Report messages missing from PHP translation providers.</li>
+        <li>Report possibly unused PHP translation keys as weak warnings.</li>
+        <li>Use one indexed provider catalog for category and message completion under both <code>messages/&lt;locale&gt;</code> and <code>translations/&lt;locale&gt;</code>.</li>
+        <li>Translation lookup for dynamic category/message expressions and non-PHP usages is outside this initial i18n inspection release.</li>
       </ul>
     ]]></change-notes>
 
@@ -85,7 +87,31 @@
                          implementationClass="com.nvlad.yii2support.objectfactory.ObjectFactoryMissedFieldInspection"/>
 
         <!-- i18n -->
+        <fileBasedIndex implementation="com.nvlad.yii2support.i18n.TranslationKeyIndex"
+                        id="yii2-translation-keys-index"/>
+        <fileBasedIndex implementation="com.nvlad.yii2support.i18n.TranslationUsageIndex"
+                        id="yii2-translation-usages-index"/>
         <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.i18n.CompletionContributor"/>
+        <localInspection language="PHP" shortName="Yii2NavigatorUnknownTranslation"
+                         displayName="Unknown translation message"
+                         groupName="i18n" groupPath="PHP,Framework,Yii2"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorUnknownTranslationInspection"/>
+        <localInspection language="PHP" shortName="Yii2NavigatorInterpolatedTranslationMessage"
+                         displayName="Interpolated translation message"
+                         groupName="i18n" groupPath="PHP,Framework,Yii2"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorInterpolatedTranslationMessageInspection"/>
+        <localInspection language="PHP" shortName="Yii2NavigatorMissingTranslations"
+                         displayName="Missing translations"
+                         groupName="i18n" groupPath="PHP,Framework,Yii2"
+                         enabledByDefault="true" level="ERROR"
+                         implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorMissingTranslationsInspection"/>
+        <localInspection language="PHP" shortName="Yii2NavigatorUnusedTranslations"
+                         displayName="Unused translations"
+                         groupName="i18n" groupPath="PHP,Framework,Yii2"
+                         enabledByDefault="true" level="WEAK WARNING"
+                         implementationClass="com.nvlad.yii2support.i18n.inspections.Yii2NavigatorUnusedTranslationsInspection"/>
 
         <!-- Database -->
         <completion.contributor language="PHP" implementationClass="com.nvlad.yii2support.database.QueryCompletionContributor"/>

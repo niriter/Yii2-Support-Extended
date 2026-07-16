@@ -27,7 +27,7 @@ class MessageLookupElement extends LookupElement {
     @NotNull
     @Override
     public String getLookupString() {
-        return Util.PhpExpressionValue((PhpExpression) myMessage.getKey());
+        return PhpExpressionUtil.getValue((PhpExpression) myMessage.getKey());
     }
 
     @Override
@@ -41,7 +41,7 @@ class MessageLookupElement extends LookupElement {
 
         PhpExpression value = (PhpExpression) myMessage.getValue();
         if (value != null) {
-            String text = Util.PhpExpressionValue(value);
+            String text = PhpExpressionUtil.getValue(value);
 
             if (!text.isEmpty()) {
                 presentation.setTailText(" = " + text, true);

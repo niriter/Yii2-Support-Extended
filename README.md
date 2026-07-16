@@ -21,6 +21,13 @@ Features
 ### i18n
 - Code completion
 - Generate params array
+- Inspection for unknown translation messages in literal `Yii::t()` calls
+- Inspection for values interpolated directly into translation messages
+- Inspection for messages missing from PHP translation files
+- Inspection for unused messages in PHP translation files
+
+The inspections use standard `messages/<locale>/<category>.php` and
+`translations/<locale>/<category>.php` providers. Dynamic categories and messages are outside the PHP-only MVP.
 
 ### Configuration arrays
 Code completion for Yii configuration arrays. Works both in configuration files and on object instantiation.
