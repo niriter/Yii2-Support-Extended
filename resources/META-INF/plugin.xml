@@ -6,11 +6,12 @@
     <incompatible-with>com.yii2support</incompatible-with>
 
     <change-notes><![CDATA[
-      <b>Yii2 Navigator 1.0.0</b><br/>
-      - First community-maintained release of the Yii2 Support fork.<br/>
-      - Supports PhpStorm 2024.1, 2025.1, and 2026.1.<br/>
-      - Modernized plugin and project lifecycle management.<br/>
-      - Preserved Yii Object Factory and PHP PSI integrations.<br/>
+      <b>Yii2 Navigator 1.0.2</b><br/>
+      <ul>
+        <li>Maintenance release with no plugin functionality changes.</li>
+        <li>Plugin distributions are now signed and verified before being attached to GitHub releases.</li>
+        <li>Release archives are built and tested automatically for supported PhpStorm versions.</li>
+      </ul>
     ]]></change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html

@@ -1,6 +1,17 @@
 Yii2 Navigator Change Log
 =========================
 
+1.0.2 - July 16, 2026
+----------------------
+- Sign plugin distribution archives before attaching them to GitHub releases.
+- Verify release archive signatures with the configured certificate chain.
+- No plugin functionality changes.
+
+1.0.1 - July 15, 2026
+----------------------
+- Build and attach installable plugin ZIP archives to GitHub releases automatically.
+- No plugin functionality changes.
+
 1.0.0 - July 15, 2026
 ----------------------
 - First community-maintained Yii2 Navigator release.
