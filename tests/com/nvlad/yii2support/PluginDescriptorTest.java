@@ -34,6 +34,13 @@ public class PluginDescriptorTest extends TestCase {
                     plugin.getElementsByTagName("postStartupActivity").getLength());
             assertEquals("obsolete error submitter must not be registered", 0,
                     plugin.getElementsByTagName("errorHandler").getLength());
+            assertEquals("Object Factory reference contributor must be registered exactly once", 1,
+                    countExtensions(
+                            plugin,
+                            "psi.referenceContributor",
+                            "implementation",
+                            "com.nvlad.yii2support.objectfactory.ObjectFactoryReferenceContributor"
+                    ));
         }
     }
 
@@ -52,5 +59,22 @@ public class PluginDescriptorTest extends TestCase {
             }
         }
         return false;
+    }
+
+    private static int countExtensions(
+            Element plugin,
+            String elementName,
+            String attributeName,
+            String attributeValue
+    ) {
+        var extensions = plugin.getElementsByTagName(elementName);
+        int count = 0;
+        for (int index = 0; index < extensions.getLength(); index++) {
+            Element extension = (Element) extensions.item(index);
+            if (attributeValue.equals(extension.getAttribute(attributeName))) {
+                count++;
+            }
+        }
+        return count;
     }
 }

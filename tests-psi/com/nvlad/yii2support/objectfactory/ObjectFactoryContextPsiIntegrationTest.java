@@ -1,11 +1,16 @@
 package com.nvlad.yii2support.objectfactory;
 
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
 import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
+import com.jetbrains.php.lang.psi.elements.PhpClass;
+import com.jetbrains.php.lang.psi.elements.PhpClassMember;
 
 import java.util.Collection;
 
@@ -120,11 +125,116 @@ public class ObjectFactoryContextPsiIntegrationTest extends LightPlatformCodeIns
                 ObjectFactoryContext.Source.APPLICATION_CONFIG_COMPONENT, "\\yii\\db\\Connection");
     }
 
+    public void testExplicitClassConfigurationKeyNavigatesToWritableField() {
+        configure("""
+                $config = [
+                    'class' => SomeComponent::class,
+                    'explicit<caret>Marker' => true,
+                ];
+                """);
+
+        assertReferenceResolvesTo("explicitMarker", "\\app\\SomeComponent");
+    }
+
+    public void testApplicationConfigKeyNavigatesToStandardComponentField() {
+        PsiFile configFile = myFixture.addFileToProject("config/main.php", """
+                <?php
+                return ['db' => ['dsn' => 'sqlite::memory:']];
+                """);
+        moveCaretTo(configFile, "'dsn'", 2);
+
+        assertReferenceResolvesTo("dsn", "\\yii\\db\\Connection");
+    }
+
+    public void testUnknownConfigurationKeyHasNoReference() {
+        configure("""
+                $config = [
+                    'class' => SomeComponent::class,
+                    'unknown<caret>Key' => true,
+                ];
+                """);
+
+        assertNull(myFixture.getReferenceAtCaretPosition());
+    }
+
+    public void testOrdinaryArrayKeyHasNoReference() {
+        configure("""
+                $map = ['ordinary<caret>Key' => true];
+                """);
+
+        assertNull(myFixture.getReferenceAtCaretPosition());
+    }
+
+    public void testArrayAccessHasNoObjectFactoryReference() {
+        configure("""
+                $map = [];
+                $value = $map['lookup<caret>Key'];
+                """);
+
+        assertNull(myFixture.getReferenceAtCaretPosition());
+    }
+
+    public void testConfigurationValueHasNoObjectFactoryReference() {
+        configure("""
+                $config = [
+                    'class' => SomeComponent::class,
+                    'explicitMarker' => 'marker<caret>Value',
+                ];
+                """);
+
+        assertNull(myFixture.getReferenceAtCaretPosition());
+    }
+
+    public void testUnrelatedArrayAccessDoesNotBreakClassRefactoring() {
+        PsiFile file = configure("""
+                class Symfony<caret>Service {
+                    private array $classes = [];
+
+                    public function find($className) {
+                        return $this->classes[$className];
+                    }
+                }
+                """);
+
+        myFixture.renameElementAtCaret("RenamedService");
+
+        assertTrue(file.getText().contains("class RenamedService"));
+        assertTrue(file.getText().contains("$this->classes[$className]"));
+    }
+
     private PsiFile configure(String body) {
         return myFixture.configureByText(
                 PhpFileType.INSTANCE,
                 "<?php\nnamespace app;\n" + body
         );
+    }
+
+    private void moveCaretTo(PsiFile file, String text, int offsetInText) {
+        myFixture.configureFromExistingVirtualFile(file.getVirtualFile());
+        int textOffset = file.getText().indexOf(text);
+        assertTrue("Text not found in fixture: " + text, textOffset >= 0);
+        myFixture.getEditor().getCaretModel().moveToOffset(textOffset + offsetInText);
+    }
+
+    private void assertReferenceResolvesTo(String memberName, String containingClassFqn) {
+        PsiReference reference = myFixture.getReferenceAtCaretPosition();
+        assertNotNull("Expected an Object Factory reference", reference);
+
+        TextRange range = reference.getRangeInElement();
+        assertTrue("Reference range must start inside its element", range.getStartOffset() >= 0);
+        assertTrue(
+                "Reference range must be relative to its element",
+                range.getEndOffset() <= reference.getElement().getTextLength()
+        );
+
+        PsiElement resolved = reference.resolve();
+        assertTrue("Reference must resolve to a PHP class member", resolved instanceof PhpClassMember);
+        PhpClassMember member = (PhpClassMember) resolved;
+        assertEquals(memberName, member.getName());
+
+        PhpClass containingClass = member.getContainingClass();
+        assertNotNull("Resolved member must belong to a PHP class", containingClass);
+        assertEquals(containingClassFqn, containingClass.getFQN());
     }
 
     private void addYiiAndApplicationClasses() {

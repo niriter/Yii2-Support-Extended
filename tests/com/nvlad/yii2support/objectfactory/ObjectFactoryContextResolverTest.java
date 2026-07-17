@@ -149,7 +149,7 @@ public class ObjectFactoryContextResolverTest extends TestCase {
     public void testAllObjectFactoryConsumersUseContextDecision() throws IOException {
         assertConsumerUsesContext("ObjectFactoryMissedFieldInspection$1");
         assertConsumerUsesContext("ObjectFactoryCompletionProvider");
-        assertConsumerUsesContext("ObjectFactoryReference");
+        assertConsumerUsesContext("ObjectFactoryReferenceContributor");
     }
 
     private void assertConfirmed(ObjectFactoryContext.Source source, PhpClass targetClass) {
