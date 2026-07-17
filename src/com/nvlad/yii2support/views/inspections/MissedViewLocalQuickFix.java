@@ -62,7 +62,6 @@ class MissedViewLocalQuickFix implements LocalQuickFix {
         final VirtualFileManager virtualFileManager = VirtualFileManager.getInstance();
         VirtualFile virtualFile = virtualFileManager.findFileByUrl(projectUrl + myPath);
         if (virtualFile != null) {
-            System.out.println("File " + projectUrl + myPath + " already exist.");
             return;
         }
 
@@ -112,7 +111,7 @@ class MissedViewLocalQuickFix implements LocalQuickFix {
             try {
                 viewPsiFile.getViewProvider().getDocument().insertString(0, template.getText(properties));
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.warn("Unable to apply the view template for <" + myPath + ">.", e);
             }
         }
     }
@@ -133,8 +132,7 @@ class MissedViewLocalQuickFix implements LocalQuickFix {
 
         templateName = getDefaultFileTemplateName(fileType);
         if (templateName == null) {
-            System.out.println("Default IDE template for <" + myPath + "> not found.");
-
+            LOGGER.warn("Default IDE template for <" + myPath + "> not found.");
             return null;
         }
 

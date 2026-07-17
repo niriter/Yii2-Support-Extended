@@ -119,8 +119,6 @@ class CompletionProvider extends com.intellij.codeInsight.completion.CompletionP
                     }
                     completionResultSet.addElement(new ViewLookupElement(psiFile, insertText));
                     break;
-                } else {
-                    System.out.println(view.fileUrl + " => not exists");
                 }
             }
         }

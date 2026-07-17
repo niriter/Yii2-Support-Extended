@@ -44,7 +44,6 @@ public class MissedParamQuickFix  implements LocalQuickFix {
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor problemDescriptor) {
         Method method = (Method)methodReference.resolve();
         if (method != null) {
-//          Parameter[] parameters = method.getParameters();
           int paramParameterIndex = ClassUtils.getParamIndex(method, "params");
           int conditionParameterIndex = ClassUtils.getParamIndex(method, new String[]{ "condition", "expression", "sql"});
 
@@ -100,14 +99,9 @@ public class MissedParamQuickFix  implements LocalQuickFix {
             }
 
             template.addTextSegment(separator);
-//            String templateVariable = "$" + variable.toUpperCase() + "$";
-          //  template.addVariable(templateVariable, "", "'variable'", true);
             String value = getArrayValueByHash(variable, array);
-            //if (value != null)
-            //    template.addVariable("test", value, true);
             String valueStr = value == null ? "''" : value;
             template.addTextSegment("'" + variable + "' => " + valueStr);
-          //  template.addVariableSegment(templateVariable);
             addComma = true;
         }
 

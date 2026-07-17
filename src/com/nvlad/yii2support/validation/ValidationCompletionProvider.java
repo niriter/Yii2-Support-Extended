@@ -49,13 +49,6 @@ public class ValidationCompletionProvider extends CompletionProvider<CompletionP
                             completionResultSet.addElement(buildLookup((Method) validator.validator));
                         }
                     }
-//                    for (Map.Entry<String, PhpNamedElement> entry : validators.entrySet()) {
-//                        if (entry.getValue() instanceof PhpClass) {
-//                            completionResultSet.addElement(buildLookup(entry.getKey(), (PhpClass) entry.getValue(), phpExpression));
-//                        } else if (entry.getValue() instanceof Method) {
-//                            completionResultSet.addElement(buildLookup((Method) entry.getValue(), phpExpression));
-//                        }
-//                    }
                 } else if (getPosition.equals(RulePositionEnum.OPTIONS)) {
                     ArrayCreationExpression arrayCreation = (ArrayCreationExpression) PsiUtil.getSuperParent(position, ArrayCreationExpression.class, 4);
                     if (arrayCreation != null) {
