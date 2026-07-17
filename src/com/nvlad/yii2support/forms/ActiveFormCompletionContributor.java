@@ -79,16 +79,6 @@ public class ActiveFormCompletionContributor extends com.intellij.codeInsight.co
             }
         });
     }
-
-    @Override
-    public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
-        if ((typeChar == '\'' || typeChar == '"') && position.getParent() instanceof MethodReference) {
-            return true;
-        }
-
-        return false;
-    }
-
     private static ElementPattern<PsiElement> ElementPattern() {
 
         return

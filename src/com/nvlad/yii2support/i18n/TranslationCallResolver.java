@@ -16,7 +16,7 @@ public final class TranslationCallResolver {
     private TranslationCallResolver() {
     }
 
-    static boolean isTranslationMethod(@NotNull MethodReference reference) {
+    public static boolean isTranslationMethod(@NotNull MethodReference reference) {
         if (!reference.isStatic() || !"t".equals(reference.getName())) {
             return false;
         }

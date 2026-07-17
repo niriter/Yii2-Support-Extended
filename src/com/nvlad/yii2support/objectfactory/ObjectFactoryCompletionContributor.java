@@ -25,17 +25,6 @@ public class ObjectFactoryCompletionContributor extends com.intellij.codeInsight
     public AutoCompletionDecision handleAutoCompletionPossibility(@NotNull AutoCompletionContext context) {
         return super.handleAutoCompletionPossibility(context);
     }
-
-    @Override
-    public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
-        if ((typeChar == '\'' || typeChar == '"') &&
-                (position.getParent() instanceof ArrayCreationExpression || position.getParent() instanceof ArrayAccessExpression)) {
-            return true;
-        }
-
-        return false;
-    }
-
     private static ElementPattern<PsiElement> ElementPattern() {
         return PlatformPatterns.psiElement()
             .withParent(PlatformPatterns.psiElement(StringLiteralExpression.class)

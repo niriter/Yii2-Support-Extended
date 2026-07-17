@@ -143,12 +143,6 @@ public class UrlCompletionContributor extends com.intellij.codeInsight.completio
             return null;
         }
     }
-
-    @Override
-    public boolean invokeAutoPopup(@NotNull PsiElement position, char typeChar) {
-        return (typeChar == '\'' || typeChar == '"') && position.getParent() instanceof ArrayCreationExpression;
-    }
-
     private static ElementPattern<PsiElement> ElementPattern() {
         return
                 PlatformPatterns.or(

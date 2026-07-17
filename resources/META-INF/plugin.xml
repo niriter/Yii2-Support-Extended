@@ -40,6 +40,7 @@
     <extensions defaultExtensionNs="com.intellij">
 
         <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
+        <typedHandler implementation="com.nvlad.yii2support.completion.YiiCompletionAutoPopupHandler"/>
 
         <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
                              displayName="Yii2 Navigator"

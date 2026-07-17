@@ -29,10 +29,14 @@ public class LifecycleModernizationPolicyTest extends TestCase {
         assertFalse(productionSources.contains("kotlin.reflect.jvm.internal"));
         assertFalse(productionSources.contains("@Storage(file"));
         assertFalse(productionSources.contains("getBaseDir()"));
+        assertFalse(productionSources.contains("invokeAutoPopup("));
         assertFalse(STATIC_PROJECT_MAP.matcher(productionSources).find());
 
         assertFalse(descriptor.contains("<application-components>"));
         assertFalse(descriptor.contains("<errorHandler"));
+        assertTrue(descriptor.contains(
+                "<typedHandler implementation=\"com.nvlad.yii2support.completion.YiiCompletionAutoPopupHandler\"/>"
+        ));
         assertFalse(buildScript.contains("io.sentry"));
     }
 
