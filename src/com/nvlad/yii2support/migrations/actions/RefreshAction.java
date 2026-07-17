@@ -10,7 +10,6 @@ import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.entities.Migration;
 import com.nvlad.yii2support.migrations.services.MigrationService;
-import kotlin.reflect.jvm.internal.impl.utils.SmartList;
 
 import java.util.*;
 
@@ -52,7 +51,7 @@ public class RefreshAction extends MigrateBaseAction {
         }
 
         CommandContext context = createCommandContext(project);
-        List<CommandBase> commands = new SmartList<>();
+        List<CommandBase> commands = new ArrayList<>();
         for (MigrateCommand command : migrateCommandMap.keySet()) {
             if (migrateCommandMap.get(command).isEmpty()) {
                 continue;

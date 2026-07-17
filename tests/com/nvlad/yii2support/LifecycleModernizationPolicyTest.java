@@ -26,6 +26,7 @@ public class LifecycleModernizationPolicyTest extends TestCase {
         assertFalse(productionSources.contains("ListPopupImpl"));
         assertFalse(productionSources.contains("DataSourceUiUtil"));
         assertFalse(productionSources.contains("ServiceManager.getService"));
+        assertFalse(productionSources.contains("kotlin.reflect.jvm.internal"));
         assertFalse(productionSources.contains("@Storage(file"));
         assertFalse(productionSources.contains("getBaseDir()"));
         assertFalse(STATIC_PROJECT_MAP.matcher(productionSources).find());
