@@ -18,8 +18,8 @@ import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.psi.resolve.types.PhpType;
 import com.jetbrains.php.templates.PhpFileTemplateUtil;
 import com.jetbrains.smarty.SmartyFileType;
-import com.jetbrains.twig.TwigFileType;
 import com.nvlad.yii2support.common.YiiApplicationUtils;
+import com.nvlad.yii2support.views.filetypes.ViewFileTypeSupport;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -143,20 +143,12 @@ class MissedViewLocalQuickFix implements LocalQuickFix {
     private String getViewFileTemplateName(FileType fileType) {
         if (fileType == PhpFileType.INSTANCE) {
             return "Yii2 PHP View File";
-        } else if (fileType == SmartyFileType.INSTANCE) {
+        }
+        if (fileType == SmartyFileType.INSTANCE) {
             return "Yii2 Smarty View File";
-        } else {
-            try {
-                Class.forName("com.jetbrains.twig.TwigFileType");
-                if (fileType == TwigFileType.INSTANCE) {
-                    return "Yii2 Twig View File";
-                }
-            } catch (ClassNotFoundException e) {
-                return null;
-            }
         }
 
-        return null;
+        return ViewFileTypeSupport.findTemplateName(fileType);
     }
 
     @Nullable

@@ -42,7 +42,6 @@ dependencies {
         bundledPlugins(
             "com.jetbrains.php",
             "com.intellij.database",
-            "com.jetbrains.twig",
         )
         testFramework(TestFrameworkType.Bundled)
         pluginVerifier()

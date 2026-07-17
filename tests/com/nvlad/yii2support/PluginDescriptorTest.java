@@ -28,6 +28,10 @@ public class PluginDescriptorTest extends TestCase {
             assertEquals("com.yii2support",
                     plugin.getElementsByTagName("incompatible-with").item(0).getTextContent().trim());
             assertTrue("PHP plugin dependency must be declared", hasDependency(plugin, "com.jetbrains.php"));
+            Element twigDependency = findDependency(plugin, "com.jetbrains.twig");
+            assertNotNull("Twig integration must be declared as optional", twigDependency);
+            assertEquals("true", twigDependency.getAttribute("optional"));
+            assertEquals("twig.xml", twigDependency.getAttribute("config-file"));
             assertEquals("legacy application components must not be registered", 0,
                     plugin.getElementsByTagName("application-components").getLength());
             assertEquals("version notification startup activity must not be registered", 0,
@@ -65,14 +69,34 @@ public class PluginDescriptorTest extends TestCase {
                 getClass().getResource("/META-INF/LICENSE.md"));
     }
 
+    public void testOptionalTwigDescriptorRegistersFileTypeSupport() throws Exception {
+        try (InputStream descriptorStream = getClass().getResourceAsStream("/META-INF/twig.xml")) {
+            assertNotNull("META-INF/twig.xml must be available on the plugin classpath", descriptorStream);
+
+            Document descriptor = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder()
+                    .parse(descriptorStream);
+            assertEquals(1, countExtensions(
+                    descriptor.getDocumentElement(),
+                    "viewFileTypeSupport",
+                    "implementation",
+                    "com.nvlad.yii2support.views.twig.TwigViewFileTypeSupport"
+            ));
+        }
+    }
+
     private static boolean hasDependency(Element plugin, String pluginId) {
+        return findDependency(plugin, pluginId) != null;
+    }
+
+    private static Element findDependency(Element plugin, String pluginId) {
         var dependencies = plugin.getElementsByTagName("depends");
         for (int index = 0; index < dependencies.getLength(); index++) {
             if (pluginId.equals(dependencies.item(index).getTextContent().trim())) {
-                return true;
+                return (Element) dependencies.item(index);
             }
         }
-        return false;
+        return null;
     }
 
     private static int countExtensions(

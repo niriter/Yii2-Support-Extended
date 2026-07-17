@@ -8,9 +8,9 @@ import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.smarty.SmartyFileType;
-import com.jetbrains.twig.TwigFileType;
 import com.nvlad.yii2support.views.entities.ViewInfo;
 import com.nvlad.yii2support.views.entities.ViewResolve;
+import com.nvlad.yii2support.views.filetypes.ViewFileTypeSupport;
 import com.nvlad.yii2support.views.util.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -157,17 +157,7 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
         }
     }
 
-    private class ViewFileInputFilter implements FileBasedIndex.InputFilter {
-        private boolean twigSupported;
-
-        ViewFileInputFilter() {
-            try {
-                twigSupported = Class.forName("com.jetbrains.twig.TwigFileType") != null;
-            } catch (ClassNotFoundException e) {
-                twigSupported = false;
-            }
-        }
-
+    private static class ViewFileInputFilter implements FileBasedIndex.InputFilter {
         @Override
         public boolean acceptInput(@NotNull VirtualFile virtualFile) {
             if (virtualFile.getFileType() == PhpFileType.INSTANCE) {
@@ -178,7 +168,7 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
                 return true;
             }
 
-            return twigSupported && virtualFile.getFileType() == TwigFileType.INSTANCE;
+            return ViewFileTypeSupport.isSupported(virtualFile.getFileType());
         }
     }
 }

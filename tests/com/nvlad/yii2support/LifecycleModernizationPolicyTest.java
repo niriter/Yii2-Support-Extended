@@ -52,6 +52,20 @@ public class LifecycleModernizationPolicyTest extends TestCase {
         assertFalse(commandBase.contains("scheduleWithFixedDelay("));
     }
 
+    public void testTwigApiIsIsolatedBehindOptionalDescriptor() throws IOException {
+        Path projectRoot = Path.of(System.getProperty("user.dir"));
+        String productionSources = readTree(projectRoot.resolve("src"));
+        String buildScript = Files.readString(projectRoot.resolve("build.gradle.kts"));
+        String twigDescriptor = Files.readString(projectRoot.resolve("resources/META-INF/twig.xml"));
+
+        assertFalse("core classes must not link against the optional Twig plugin",
+                productionSources.contains("com.jetbrains.twig"));
+        assertFalse("Twig must not be present on the production or test compile classpath",
+                buildScript.contains("\"com.jetbrains.twig\""));
+        assertTrue("the optional descriptor must register the isolated Twig adapter",
+                twigDescriptor.contains("com.nvlad.yii2support.views.twig.TwigViewFileTypeSupport"));
+    }
+
     private static String readTree(Path root) throws IOException {
         StringBuilder result = new StringBuilder();
         try (Stream<Path> paths = Files.walk(root)) {

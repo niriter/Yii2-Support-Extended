@@ -26,6 +26,12 @@
     <depends>com.intellij.database</depends>
     <depends optional="true" config-file="twig.xml">com.jetbrains.twig</depends>
 
+    <extensionPoints>
+        <extensionPoint name="viewFileTypeSupport"
+                        interface="com.nvlad.yii2support.views.filetypes.ViewFileTypeSupport"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.jetbrains.php">
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider"/>

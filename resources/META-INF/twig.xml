@@ -1,2 +1,5 @@
 <idea-plugin>
+    <extensions defaultExtensionNs="com.meekitak.yii2navigator">
+        <viewFileTypeSupport implementation="com.nvlad.yii2support.views.twig.TwigViewFileTypeSupport"/>
+    </extensions>
 </idea-plugin>
