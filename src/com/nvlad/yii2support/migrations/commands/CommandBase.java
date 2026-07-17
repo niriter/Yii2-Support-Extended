@@ -16,7 +16,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.List;
 
 public abstract class CommandBase implements Runnable {
@@ -31,14 +34,58 @@ public abstract class CommandBase implements Runnable {
     abstract void processOutput(String text);
 
     void repaintMigrationNode(Migration migration) {
-        DefaultMutableTreeNode treeNode = findTreeNode(migration);
-        if (treeNode != null) {
-            myContext.application().invokeLater(() ->
-                    ((DefaultTreeModel) myContext.migrationTree().getModel()).nodeChanged(treeNode));
-        }
+        myContext.application().invokeLater(() -> {
+            TreeModel currentModel = myContext.migrationTree().getModel();
+            if (!(currentModel instanceof DefaultTreeModel)) {
+                return;
+            }
+
+            DefaultTreeModel treeModel = (DefaultTreeModel) currentModel;
+            DefaultMutableTreeNode treeNode = findMigrationNode(treeModel.getRoot(), migration);
+            if (treeNode == null) {
+                return;
+            }
+
+            Migration displayedMigration = (Migration) treeNode.getUserObject();
+            if (displayedMigration != migration) {
+                copyDisplayState(migration, displayedMigration);
+            }
+            treeModel.nodeChanged(treeNode);
+        });
     }
 
-    abstract DefaultMutableTreeNode findTreeNode(Migration migration);
+    static DefaultMutableTreeNode findMigrationNode(Object root, Migration migration) {
+        if (!(root instanceof DefaultMutableTreeNode)) {
+            return null;
+        }
+
+        Enumeration<TreeNode> nodes = ((DefaultMutableTreeNode) root).breadthFirstEnumeration();
+        while (nodes.hasMoreElements()) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes.nextElement();
+            if (node.getUserObject() instanceof Migration) {
+                Migration candidate = (Migration) node.getUserObject();
+                if (sameMigration(candidate, migration)) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean sameMigration(Migration left, Migration right) {
+        return left == right
+                || (StringUtil.equals(left.name, right.name)
+                && StringUtil.equals(left.namespace, right.namespace)
+                && StringUtil.equals(left.path, right.path));
+    }
+
+    static void copyDisplayState(Migration source, Migration target) {
+        target.status = source.status;
+        target.createdAt = source.createdAt;
+        target.applyAt = source.applyAt;
+        target.downDuration = source.downDuration;
+        target.upDuration = source.upDuration;
+    }
 
     Integer executeProcess(@NotNull ProcessHandler processHandler) {
         ConsoleView consoleView = myContext.consoleView();

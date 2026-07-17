@@ -9,14 +9,14 @@ import com.nvlad.yii2support.migrations.entities.Migration;
 import com.nvlad.yii2support.migrations.entities.MigrationStatus;
 import com.nvlad.yii2support.migrations.util.MigrationUtil;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MigrationHistory extends CommandBase {
     private static final Pattern historyEntryPattern = Pattern.compile("\\((\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2})\\) ([\\w\\\\-]*?\\\\)?([mM]\\d{6}_?\\d{6}\\D.+)");
-    private Map<Migration, DefaultMutableTreeNode> treeNodeMap;
     private final List<Migration> myMigrations;
 
     public MigrationHistory(CommandContext context, MigrateCommand command, List<Migration> migrations) {
@@ -67,13 +67,6 @@ public class MigrationHistory extends CommandBase {
             Date date = MigrationUtil.parseApplyDate(matcher.group(1));
             updateMigration(migrationNamespace, migrationName, date);
         }
-
-        if (text.contains("No migration has been done before.")) {
-            if (treeNodeMap == null) {
-                findTreeNode(myMigrations.get(0));
-
-            }
-        }
     }
 
     private void updateMigration(String namespace, String name, Date date) {
@@ -90,32 +83,5 @@ public class MigrationHistory extends CommandBase {
                 return;
             }
         }
-    }
-
-    DefaultMutableTreeNode findTreeNode(Migration migration) {
-        if (treeNodeMap == null) {
-            DefaultMutableTreeNode root = (DefaultMutableTreeNode) myContext.migrationTree().getModel().getRoot();
-            treeNodeMap = buildTreeNodeMap(root);
-        }
-
-        return treeNodeMap.get(migration);
-    }
-
-    private Map<Migration, DefaultMutableTreeNode> buildTreeNodeMap(DefaultMutableTreeNode node) {
-        Map<Migration, DefaultMutableTreeNode> result = new HashMap<>();
-
-        Enumeration enumeration = node.children();
-        while (enumeration.hasMoreElements()) {
-            DefaultMutableTreeNode item = (DefaultMutableTreeNode) enumeration.nextElement();
-            if (item.getUserObject() instanceof Migration) {
-                result.put((Migration) item.getUserObject(), item);
-
-                if (node.getChildCount() > 0) {
-                    result.putAll(buildTreeNodeMap(item));
-                }
-            }
-        }
-
-        return result;
     }
 }

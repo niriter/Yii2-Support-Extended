@@ -17,7 +17,6 @@ import com.nvlad.yii2support.migrations.entities.MigrationOperation;
 import com.nvlad.yii2support.migrations.entities.MigrationStatus;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -30,7 +29,6 @@ public final class MigrationCommand extends CommandBase {
     private final String path;
     private final List<Migration> migrations;
     private String direction;
-    private Map<String, DefaultMutableTreeNode> migrationNodeMap;
     private Map<Migration, MigrationStatus> migrationStatusMap;
 
     public MigrationCommand(
@@ -100,11 +98,6 @@ public final class MigrationCommand extends CommandBase {
         }
     }
 
-    @Override
-    DefaultMutableTreeNode findTreeNode(Migration migration) {
-        return getMigrationNodeMap().get(migration.name);
-    }
-
     private void executeActionWithParams(List<String> parameters) {
         try {
             String command = myCommand.command + "/" + operation.getCommandAction();
@@ -125,25 +118,6 @@ public final class MigrationCommand extends CommandBase {
         }
 
         syncDataSources();
-    }
-
-    private Map<String, DefaultMutableTreeNode> getMigrationNodeMap() {
-        if (migrationNodeMap == null) {
-            migrationNodeMap = new HashMap<>();
-            buildMigrationNodeMap((DefaultMutableTreeNode) myContext.migrationTree().getModel().getRoot());
-        }
-
-        return migrationNodeMap;
-    }
-
-    private void buildMigrationNodeMap(DefaultMutableTreeNode parentNode) {
-        Enumeration<?> pathEnumeration = parentNode.children();
-        while (pathEnumeration.hasMoreElements()) {
-            DefaultMutableTreeNode node = ((DefaultMutableTreeNode) pathEnumeration.nextElement());
-            if (node.getUserObject() instanceof Migration) {
-                migrationNodeMap.put(((Migration) node.getUserObject()).name, node);
-            }
-        }
     }
 
     private void setErrorStatusForMigrationInProgress() {
