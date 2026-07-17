@@ -2,6 +2,7 @@ package com.nvlad.yii2support.migrations.actions;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.nvlad.yii2support.migrations.commands.CommandContext;
 import com.nvlad.yii2support.migrations.commands.MigrationCommand;
 import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
@@ -59,14 +60,15 @@ public final class MigrateAction extends MigrateBaseAction {
             return;
         }
 
+        CommandContext context = createCommandContext(project);
         MigrationCommand command = new MigrationCommand(
                 operation,
-                project,
+                context,
                 migrations,
                 getCommand(treeNode),
                 getMigrationPath(project, pathNode)
         );
-        executeCommand(project, command);
+        executeCommand(context, command);
     }
 
     @Override

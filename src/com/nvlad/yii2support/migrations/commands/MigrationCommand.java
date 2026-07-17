@@ -7,7 +7,6 @@ import com.intellij.database.psi.DbPsiFacade;
 import com.intellij.database.util.DbImplUtil;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.nvlad.yii2support.common.YiiCommandLineUtil;
 import com.nvlad.yii2support.migrations.compat.DataSourceSyncCompat;
@@ -18,7 +17,6 @@ import com.nvlad.yii2support.migrations.entities.MigrationOperation;
 import com.nvlad.yii2support.migrations.entities.MigrationStatus;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.time.Duration;
 import java.util.*;
@@ -37,11 +35,11 @@ public final class MigrationCommand extends CommandBase {
 
     public MigrationCommand(
             @NotNull MigrationOperation operation,
-            @NotNull Project project,
+            @NotNull CommandContext context,
             @NotNull List<Migration> migrations,
             @NotNull MigrateCommand command,
             String path) {
-        super(project, command);
+        super(context, command);
         this.operation = operation;
         this.path = path;
         this.migrations = migrations;
@@ -104,17 +102,13 @@ public final class MigrationCommand extends CommandBase {
 
     @Override
     DefaultMutableTreeNode findTreeNode(Migration migration) {
-        if (myComponent instanceof JTree) {
-            return getMigrationNodeMap().get(migration.name);
-        }
-
-        return null;
+        return getMigrationNodeMap().get(migration.name);
     }
 
     private void executeActionWithParams(List<String> parameters) {
         try {
             String command = myCommand.command + "/" + operation.getCommandAction();
-            ProcessHandler processHandler = YiiCommandLineUtil.configureHandler(myProject, command, parameters);
+            ProcessHandler processHandler = YiiCommandLineUtil.configureHandler(myContext.project(), command, parameters);
             if (processHandler == null) {
                 return;
             }
@@ -136,7 +130,7 @@ public final class MigrationCommand extends CommandBase {
     private Map<String, DefaultMutableTreeNode> getMigrationNodeMap() {
         if (migrationNodeMap == null) {
             migrationNodeMap = new HashMap<>();
-            buildMigrationNodeMap((DefaultMutableTreeNode) ((JTree) myComponent).getModel().getRoot());
+            buildMigrationNodeMap((DefaultMutableTreeNode) myContext.migrationTree().getModel().getRoot());
         }
 
         return migrationNodeMap;
@@ -158,6 +152,7 @@ public final class MigrationCommand extends CommandBase {
                 migration.status = "reverting".equals(direction)
                         ? MigrationStatus.RollbackError
                         : MigrationStatus.ApplyError;
+                repaintMigrationNode(migration);
             }
         }
     }
@@ -175,12 +170,12 @@ public final class MigrationCommand extends CommandBase {
     }
 
     private void syncDataSources() {
-        DbPsiFacade facade = DbPsiFacade.getInstance(myProject);
+        DbPsiFacade facade = DbPsiFacade.getInstance(myContext.project());
         for (DbDataSource dataSource : facade.getDataSources()) {
             RawDataSource rawDataSource = dataSource.getDelegateDataSource();
             if (rawDataSource instanceof LocalDataSource
-                    && DbImplUtil.isConnected(myProject, (LocalDataSource) rawDataSource)) {
-                DataSourceSyncCompat.synchronize(myProject, (LocalDataSource) rawDataSource);
+                    && DbImplUtil.isConnected(myContext.project(), (LocalDataSource) rawDataSource)) {
+                DataSourceSyncCompat.synchronize(myContext.project(), (LocalDataSource) rawDataSource);
             }
         }
     }

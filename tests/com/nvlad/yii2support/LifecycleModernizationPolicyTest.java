@@ -35,6 +35,23 @@ public class LifecycleModernizationPolicyTest extends TestCase {
         assertFalse(buildScript.contains("io.sentry"));
     }
 
+    public void testMigrationCommandsHaveConstructorOnlyLifecycle() throws IOException {
+        Path projectRoot = Path.of(System.getProperty("user.dir"));
+        String commandBase = Files.readString(projectRoot.resolve(
+                "src/com/nvlad/yii2support/migrations/commands/CommandBase.java"
+        ));
+        String commandContext = Files.readString(projectRoot.resolve(
+                "src/com/nvlad/yii2support/migrations/commands/CommandContext.java"
+        ));
+
+        assertTrue(commandContext.contains("public record CommandContext"));
+        assertFalse(commandBase.contains("setConsoleView("));
+        assertFalse(commandBase.contains("repaintComponent("));
+        assertFalse(commandBase.contains("setApplication("));
+        assertFalse(commandBase.contains("ScheduledExecutorService"));
+        assertFalse(commandBase.contains("scheduleWithFixedDelay("));
+    }
+
     private static String readTree(Path root) throws IOException {
         StringBuilder result = new StringBuilder();
         try (Stream<Path> paths = Files.walk(root)) {

@@ -1,5 +1,6 @@
 package com.nvlad.yii2support.migrations.actions;
 
+import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -10,6 +11,7 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.content.Content;
 import com.nvlad.yii2support.common.YiiApplicationUtils;
 import com.nvlad.yii2support.migrations.commands.CommandBase;
+import com.nvlad.yii2support.migrations.commands.CommandContext;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.ui.toolWindow.ConsolePanel;
 import com.nvlad.yii2support.migrations.ui.toolWindow.MigrationPanel;
@@ -56,35 +58,41 @@ abstract class MigrateBaseAction extends AnActionButton {
         return null;
     }
 
-    void executeCommand(Project project, CommandBase ...command) {
-        executeCommand(project, Arrays.asList(command));
+    void executeCommand(CommandContext context, CommandBase ...command) {
+        executeCommand(context, Arrays.asList(command));
     }
 
-    void executeCommand(Project project, List<CommandBase> commands) {
+    void executeCommand(CommandContext context, List<CommandBase> commands) {
+        context.application().executeOnPooledThread(() -> {
+            for (CommandBase command : commands) {
+                command.run();
+            }
+        });
+    }
+
+    @NotNull
+    CommandContext createCommandContext(@NotNull Project project) {
+        ConsoleView consoleView = null;
         ToolWindow window = ToolWindowManager
                 .getInstance(project).getToolWindow(MigrationsToolWindowFactory.TOOL_WINDOW_ID);
 
         if (window != null) {
-            Content content = window.getContentManager().getContent(1);
-            if (content != null) {
-                ConsolePanel consolePanel = (ConsolePanel) content.getComponent();
-                for (CommandBase command : commands) {
-                    command.setConsoleView(consolePanel.getConsoleView());
+            for (Content content : window.getContentManager().getContents()) {
+                JComponent component = content.getComponent();
+                if (component instanceof ConsolePanel) {
+                    consoleView = ((ConsolePanel) component).getConsoleView();
+                    break;
                 }
             }
         }
 
         Application application = ApplicationManager.getApplication();
-        for (CommandBase command : commands) {
-            command.repaintComponent(getTree());
-            command.setApplication(application);
-        }
-
-        application.executeOnPooledThread(() -> {
-            for (CommandBase command : commands) {
-                command.run();
-            }
-        });
+        return new CommandContext(
+                project,
+                application,
+                getPanel(),
+                consoleView
+        );
     }
 
     @NotNull

@@ -6,8 +6,6 @@ import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.process.ProcessListener;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.execution.ui.ConsoleViewContentType;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.text.StringUtil;
@@ -15,39 +13,19 @@ import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.entities.Migration;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public abstract class CommandBase implements Runnable {
-    final Project myProject;
+    final CommandContext myContext;
     final MigrateCommand myCommand;
-    protected JComponent myComponent;
-    private ConsoleView myConsoleView;
-    private Application myApplication;
-    private ScheduledExecutorService myExecutorService;
 
-    CommandBase(Project project, MigrateCommand command) {
-        myProject = project;
+    CommandBase(@NotNull CommandContext context, @NotNull MigrateCommand command) {
+        myContext = context;
         myCommand = command;
-    }
-
-    public ConsoleView getConsoleView() {
-        return myConsoleView;
-    }
-
-    public void setConsoleView(ConsoleView myConsoleView) {
-        this.myConsoleView = myConsoleView;
-    }
-
-    public void repaintComponent(JComponent component) {
-        myComponent = component;
-        myExecutorService = Executors.newScheduledThreadPool(1);
     }
 
     abstract void processOutput(String text);
@@ -55,42 +33,31 @@ public abstract class CommandBase implements Runnable {
     void repaintMigrationNode(Migration migration) {
         DefaultMutableTreeNode treeNode = findTreeNode(migration);
         if (treeNode != null) {
-            myApplication.invokeLater(() -> ((DefaultTreeModel) ((JTree) myComponent).getModel()).nodeChanged(treeNode));
+            myContext.application().invokeLater(() ->
+                    ((DefaultTreeModel) myContext.migrationTree().getModel()).nodeChanged(treeNode));
         }
     }
 
     abstract DefaultMutableTreeNode findTreeNode(Migration migration);
 
     Integer executeProcess(@NotNull ProcessHandler processHandler) {
-        if (myConsoleView != null && myConsoleView.getContentSize() > 0) {
-            myConsoleView.print("\n*************************************\n\n", ConsoleViewContentType.NORMAL_OUTPUT);
+        ConsoleView consoleView = myContext.consoleView();
+        if (consoleView != null && consoleView.getContentSize() > 0) {
+            consoleView.print("\n*************************************\n\n", ConsoleViewContentType.NORMAL_OUTPUT);
         }
 
         processHandler.addProcessListener(new CommandProcessListener(this));
         processHandler.startNotify();
 
-        if (myComponent != null) {
-            myApplication.invokeLater(() -> myComponent.setEnabled(false));
+        JTree migrationTree = myContext.migrationTree();
+        myContext.application().invokeLater(() -> migrationTree.setEnabled(false));
 
-            myExecutorService.scheduleWithFixedDelay(this::updateComponent, 0, 125, TimeUnit.MILLISECONDS);
+        try {
+            processHandler.waitFor();
+            return processHandler.getExitCode();
+        } finally {
+            myContext.application().invokeLater(() -> migrationTree.setEnabled(true));
         }
-
-        processHandler.waitFor();
-
-        if (myComponent != null) {
-            myExecutorService.shutdown();
-            if (!myExecutorService.isShutdown()) {
-                myExecutorService.shutdownNow();
-            }
-
-            myApplication.invokeLater(() -> {
-                myComponent.repaint();
-
-                myComponent.setEnabled(true);
-            });
-        }
-
-        return processHandler.getExitCode();
     }
 
     void prepareCommandParams(List<String> params, String path) {
@@ -107,14 +74,6 @@ public abstract class CommandBase implements Runnable {
         }
 //        params.add("--useTablePrefix=" + (myCommand.useTablePrefix ? "1" : "0")); // only for "create" action
         params.add("--interactive=0");
-    }
-
-    private void updateComponent() {
-        myComponent.repaint();
-    }
-
-    public void setApplication(Application application) {
-        myApplication = application;
     }
 
     class CommandProcessListener implements ProcessListener {
@@ -151,8 +110,9 @@ public abstract class CommandBase implements Runnable {
 
                 builder.append(text);
 
-                if (myConsoleView != null) {
-                    myConsoleView.print(text, ConsoleViewContentType.getConsoleViewType(processOutputType));
+                ConsoleView consoleView = myContext.consoleView();
+                if (consoleView != null) {
+                    consoleView.print(text, ConsoleViewContentType.getConsoleViewType(processOutputType));
                 }
             });
 

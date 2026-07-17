@@ -2,17 +2,13 @@ package com.nvlad.yii2support.migrations.commands;
 
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
 import com.nvlad.yii2support.common.YiiCommandLineUtil;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
 import com.nvlad.yii2support.migrations.entities.Migration;
 import com.nvlad.yii2support.migrations.entities.MigrationStatus;
-import com.nvlad.yii2support.migrations.ui.toolWindow.MigrationPanel;
 import com.nvlad.yii2support.migrations.util.MigrationUtil;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -23,8 +19,8 @@ public class MigrationHistory extends CommandBase {
     private Map<Migration, DefaultMutableTreeNode> treeNodeMap;
     private final List<Migration> myMigrations;
 
-    public MigrationHistory(Project project, MigrateCommand command, List<Migration> migrations) {
-        super(project, command);
+    public MigrationHistory(CommandContext context, MigrateCommand command, List<Migration> migrations) {
+        super(context, command);
         myMigrations = migrations;
     }
 
@@ -35,7 +31,11 @@ public class MigrationHistory extends CommandBase {
             params.add("all");
             prepareCommandParams(params, null);
 
-            ProcessHandler processHandler = YiiCommandLineUtil.configureHandler(myProject, myCommand.command + "/history", params);
+            ProcessHandler processHandler = YiiCommandLineUtil.configureHandler(
+                    myContext.project(),
+                    myCommand.command + "/history",
+                    params
+            );
             Integer exitCode = 1;
             if (processHandler != null) {
                 exitCode = executeProcess(processHandler);
@@ -49,10 +49,9 @@ public class MigrationHistory extends CommandBase {
                 migration.applyAt = null;
             }
 
-            MigrationPanel component = (MigrationPanel) myComponent.getParent().getParent().getParent();
-            ApplicationManager.getApplication().invokeLater(() -> {
-                component.updateTree();
-                component.updateUI();
+            myContext.application().invokeLater(() -> {
+                myContext.migrationPanel().updateTree();
+                myContext.migrationPanel().updateUI();
             });
         } catch (ExecutionException e) {
             YiiCommandLineUtil.processError(e);
@@ -94,17 +93,12 @@ public class MigrationHistory extends CommandBase {
     }
 
     DefaultMutableTreeNode findTreeNode(Migration migration) {
-        if (myComponent instanceof JTree) {
-            if (treeNodeMap == null) {
-                JTree tree = (JTree) myComponent;
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-                treeNodeMap = buildTreeNodeMap(root);
-            }
-
-            return treeNodeMap.get(migration);
+        if (treeNodeMap == null) {
+            DefaultMutableTreeNode root = (DefaultMutableTreeNode) myContext.migrationTree().getModel().getRoot();
+            treeNodeMap = buildTreeNodeMap(root);
         }
 
-        return null;
+        return treeNodeMap.get(migration);
     }
 
     private Map<Migration, DefaultMutableTreeNode> buildTreeNodeMap(DefaultMutableTreeNode node) {

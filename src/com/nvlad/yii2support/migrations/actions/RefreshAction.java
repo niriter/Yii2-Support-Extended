@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.nvlad.yii2support.migrations.commands.CommandBase;
+import com.nvlad.yii2support.migrations.commands.CommandContext;
 import com.nvlad.yii2support.migrations.commands.MigrationHistory;
 import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
@@ -50,16 +51,17 @@ public class RefreshAction extends MigrateBaseAction {
             }
         }
 
+        CommandContext context = createCommandContext(project);
         List<CommandBase> commands = new SmartList<>();
         for (MigrateCommand command : migrateCommandMap.keySet()) {
             if (migrateCommandMap.get(command).isEmpty()) {
                 continue;
             }
 
-            commands.add(new MigrationHistory(project, command, new ArrayList<>(migrateCommandMap.get(command))));
+            commands.add(new MigrationHistory(context, command, new ArrayList<>(migrateCommandMap.get(command))));
         }
 
-        executeCommand(project, commands);
+        executeCommand(context, commands);
     }
 
     @Override
