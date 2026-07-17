@@ -83,18 +83,18 @@ class ValidationUtil {
 
     @NotNull
     private static List<Validator> getCustomValidators(PhpIndex phpIndex, Collection<Validator> exclude) {
-        final Collection<PhpClass> validatorClasses = phpIndex.getAllSubclasses("yii\\validators\\Validator");
         final List<Validator> validators = new ArrayList<>();
         final Set<PhpNamedElement> excludeElements = new HashSet<>(exclude.size());
         for (Validator validator : exclude) {
             excludeElements.add(validator.validator);
         }
 
-        for (PhpClass validatorClass : validatorClasses) {
+        phpIndex.processAllSubclasses("yii\\validators\\Validator", validatorClass -> {
             if (!excludeElements.contains(validatorClass)) {
                 validators.add(new Validator(validatorClass));
             }
-        }
+            return true;
+        });
 
         return validators;
     }

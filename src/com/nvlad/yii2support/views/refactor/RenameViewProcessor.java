@@ -2,6 +2,7 @@ package com.nvlad.yii2support.views.refactor;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.refactoring.RefactoringSettings;
 import com.intellij.refactoring.listeners.RefactoringElementListener;
 import com.intellij.refactoring.rename.RenamePsiFileProcessor;
@@ -38,7 +39,11 @@ public class RenameViewProcessor extends RenamePsiFileProcessor {
             return;
         }
 
-        for (PsiReference reference : findReferences(psiElement)) {
+        for (PsiReference reference : findReferences(
+                psiElement,
+                GlobalSearchScope.projectScope(psiElement.getProject()),
+                false
+        )) {
             final PsiElement element = reference.getElement();
             if (element instanceof StringLiteralExpression) {
                 renders.add(element.getParent());

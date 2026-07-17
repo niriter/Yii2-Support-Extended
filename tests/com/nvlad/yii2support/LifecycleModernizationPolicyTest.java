@@ -30,6 +30,8 @@ public class LifecycleModernizationPolicyTest extends TestCase {
         assertFalse(productionSources.contains("@Storage(file"));
         assertFalse(productionSources.contains("getBaseDir()"));
         assertFalse(productionSources.contains("invokeAutoPopup("));
+        assertFalse(productionSources.contains("findReferences(psiElement)"));
+        assertFalse(productionSources.contains("getAllSubclasses("));
         assertFalse(STATIC_PROJECT_MAP.matcher(productionSources).find());
 
         assertFalse(descriptor.contains("<application-components>"));
