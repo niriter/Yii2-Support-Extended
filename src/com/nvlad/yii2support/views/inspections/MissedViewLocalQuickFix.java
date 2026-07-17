@@ -17,7 +17,6 @@ import com.intellij.psi.PsiManager;
 import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.psi.resolve.types.PhpType;
 import com.jetbrains.php.templates.PhpFileTemplateUtil;
-import com.jetbrains.smarty.SmartyFileType;
 import com.nvlad.yii2support.common.YiiApplicationUtils;
 import com.nvlad.yii2support.views.filetypes.ViewFileTypeSupport;
 import org.jetbrains.annotations.Nls;
@@ -144,10 +143,6 @@ class MissedViewLocalQuickFix implements LocalQuickFix {
         if (fileType == PhpFileType.INSTANCE) {
             return "Yii2 PHP View File";
         }
-        if (fileType == SmartyFileType.INSTANCE) {
-            return "Yii2 Smarty View File";
-        }
-
         return ViewFileTypeSupport.findTemplateName(fileType);
     }
 

@@ -59,6 +59,13 @@ public class PluginDescriptorTest extends TestCase {
                             "implementation",
                             "com.nvlad.yii2support.objectfactory.ObjectFactoryReferenceContributor"
                     ));
+            assertEquals("Smarty view support must be registered exactly once", 1,
+                    countExtensions(
+                            plugin,
+                            "viewFileTypeSupport",
+                            "implementation",
+                            "com.nvlad.yii2support.views.smarty.SmartyViewFileTypeSupport"
+                    ));
         }
     }
 

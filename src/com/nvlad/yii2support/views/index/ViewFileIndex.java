@@ -7,7 +7,6 @@ import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
 import com.jetbrains.php.lang.PhpFileType;
-import com.jetbrains.smarty.SmartyFileType;
 import com.nvlad.yii2support.views.entities.ViewInfo;
 import com.nvlad.yii2support.views.entities.ViewResolve;
 import com.nvlad.yii2support.views.filetypes.ViewFileTypeSupport;
@@ -161,10 +160,6 @@ public class ViewFileIndex extends FileBasedIndexExtension<String, ViewInfo> {
         @Override
         public boolean acceptInput(@NotNull VirtualFile virtualFile) {
             if (virtualFile.getFileType() == PhpFileType.INSTANCE) {
-                return true;
-            }
-
-            if (virtualFile.getFileType() == SmartyFileType.INSTANCE) {
                 return true;
             }
 

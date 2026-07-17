@@ -1,6 +1,10 @@
 Yii2 Navigator Change Log
 =========================
 
+Unreleased
+----------
+- Support PhpStorm 2026.2 (`262.*`).
+
 1.1.0 - July 16, 2026
 ----------------------
 - Add inspections for unknown and interpolated messages in literal `Yii::t()` calls.

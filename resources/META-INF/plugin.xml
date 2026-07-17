@@ -32,6 +32,10 @@
                         dynamic="true"/>
     </extensionPoints>
 
+    <extensions defaultExtensionNs="com.meekitak.yii2navigator">
+        <viewFileTypeSupport implementation="com.nvlad.yii2support.views.smarty.SmartyViewFileTypeSupport"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.jetbrains.php">
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.YiiTypeProvider"/>
         <typeProvider4 implementation="com.nvlad.yii2support.typeprovider.ActiveRecordTypeProvider"/>

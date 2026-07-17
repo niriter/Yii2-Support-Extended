@@ -47,6 +47,10 @@ jobs:
             java-version: "21"
             publish-artifact: false
             gradle-tasks: "test buildPlugin"
+          - platform-version: "2026.2"
+            java-version: "21"
+            publish-artifact: false
+            gradle-tasks: "test buildPlugin"
 
     steps:
       - name: Check out sources
@@ -102,6 +106,7 @@ jobs:
           - "2024.1.7"
           - "2025.1.7.1"
           - "2026.1.4"
+          - "2026.2"
 
     steps:
       - name: Check out sources
