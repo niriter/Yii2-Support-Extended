@@ -79,8 +79,8 @@ abstract class MigrateBaseAction extends AnActionButton {
         if (window != null) {
             for (Content content : window.getContentManager().getContents()) {
                 JComponent component = content.getComponent();
-                if (component instanceof ConsolePanel) {
-                    consoleView = ((ConsolePanel) component).getConsoleView();
+                if (component instanceof ConsolePanel consolePanel) {
+                    consoleView = consolePanel.getConsoleView();
                     break;
                 }
             }
@@ -97,8 +97,8 @@ abstract class MigrateBaseAction extends AnActionButton {
 
     @NotNull
     MigrateCommand getCommand(@NotNull DefaultMutableTreeNode node) {
-        if (node.getUserObject() instanceof MigrateCommand) {
-            return (MigrateCommand) node.getUserObject();
+        if (node.getUserObject() instanceof MigrateCommand command) {
+            return command;
         }
 
         return getCommand((DefaultMutableTreeNode) node.getParent());
@@ -108,9 +108,9 @@ abstract class MigrateBaseAction extends AnActionButton {
     String getMigrationPath(Project project, TreeNode node) {
         String projectRoot = YiiApplicationUtils.getYiiRootPath(project) + "/";
         Object userObject = ((DefaultMutableTreeNode) node).getUserObject();
-        if (userObject instanceof MigrateCommand) {
+        if (userObject instanceof MigrateCommand command) {
             List<String> paths = new ArrayList<>();
-            for (String s : ((MigrateCommand) userObject).migrationPath) {
+            for (String s : command.migrationPath) {
                 String preparePath = preparePath(s, projectRoot);
                 paths.add(preparePath);
             }
@@ -118,8 +118,8 @@ abstract class MigrateBaseAction extends AnActionButton {
             return StringUtil.join(paths, ",");
         }
 
-        if (userObject instanceof String) {
-            return preparePath((String) userObject, projectRoot);
+        if (userObject instanceof String path) {
+            return preparePath(path, projectRoot);
         }
 
         return null;

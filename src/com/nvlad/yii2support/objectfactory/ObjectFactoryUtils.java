@@ -21,8 +21,8 @@ public class ObjectFactoryUtils {
     static public PhpClass findClassByArray(@NotNull ArrayCreationExpression arrayCreationExpression) {
         for (ArrayHashElement arrayHashElement : arrayCreationExpression.getHashElements()) {
             PhpPsiElement child = arrayHashElement.getKey();
-            if (child instanceof StringLiteralExpression) {
-                String key = ((StringLiteralExpression) child).getContents();
+            if (child instanceof StringLiteralExpression literal) {
+                String key = literal.getContents();
                 if (key.equals("class") || key.equals("__class")) {
                     Project project = child.getProject();
                     PhpPsiElement value = arrayHashElement.getValue();
@@ -41,16 +41,15 @@ public class ObjectFactoryUtils {
     private static PhpClass getPhpClassByYiiCreateObject(ArrayCreationExpression arrayCreation) {
         PhpClass phpClass = null;
         PsiElement parent = getParent(arrayCreation, 2);
-        if (parent instanceof MethodReference) {
-            MethodReference method = (MethodReference) parent;
+        if (parent instanceof MethodReference method) {
             if (method.getName() != null && method.getName().equals("createObject")) {
                 PhpExpression methodClass = method.getClassReference();
                 if (isYiiFacade(methodClass)) {
                     PsiElement[] pList = method.getParameters();
                     if (pList.length == 2
-                            && pList[0] instanceof PhpPsiElement
+                            && pList[0] instanceof PhpPsiElement classElement
                             && ClassUtils.indexForElementInParameterList(arrayCreation) == 1) { // \Yii::createObject takes 2 parameters
-                        phpClass = ClassUtils.getPhpClassUniversal(method.getProject(), (PhpPsiElement) pList[0]);
+                        phpClass = ClassUtils.getPhpClassUniversal(method.getProject(), classElement);
                     }
                 }
             }
@@ -59,28 +58,25 @@ public class ObjectFactoryUtils {
     }
 
     private static boolean isYiiFacade(@Nullable PhpExpression expression) {
-        if (!(expression instanceof ClassReference)) {
+        if (!(expression instanceof ClassReference reference)) {
             return false;
         }
 
-        ClassReference reference = (ClassReference) expression;
         if ("\\Yii".equals(reference.getFQN())) {
             return true;
         }
 
         PsiElement resolved = reference.resolve();
-        return resolved instanceof PhpClass && "\\Yii".equals(((PhpClass) resolved).getFQN());
+        return resolved instanceof PhpClass phpClass && "\\Yii".equals(phpClass.getFQN());
     }
 
     private static PhpClass getPhpClassInConfig(PsiDirectory dir, ArrayCreationExpression arrayCreation) {
         PhpClass phpClass = null;
         if (dir != null && dir.getName().equals("config")) {
             PsiElement parent = getParent(arrayCreation, 2);
-            if (parent instanceof ArrayHashElement) {
-                ArrayHashElement hash = (ArrayHashElement) parent;
+            if (parent instanceof ArrayHashElement hash) {
                 PsiElement element = hash.getKey();
-                if (element instanceof StringLiteralExpression) {
-                    StringLiteralExpression literal = (StringLiteralExpression) element;
+                if (element instanceof StringLiteralExpression literal) {
                     String key = literal.getContents();
                     phpClass = getStandardPhpClass(PhpIndex.getInstance(literal.getProject()), key);
                 }
@@ -91,15 +87,15 @@ public class ObjectFactoryUtils {
 
     private static PhpClass getPhpClassInWidget(ArrayCreationExpression arrayCreation) {
         PsiElement parent = getParent(arrayCreation, 2);
-        if (parent instanceof MethodReference) {
-            MethodReference methodRef = (MethodReference) parent;
+        if (parent instanceof MethodReference methodRef) {
             if (methodRef.getName() != null && (methodRef.getName().equals("widget") || methodRef.getName().equals("begin"))) {
                 PsiElement resolvedMethod = methodRef.resolve();
-                Method method = resolvedMethod instanceof Method ? (Method) resolvedMethod : null;
+                Method method = resolvedMethod instanceof Method resolved ? resolved : null;
                 PhpExpression ref = methodRef.getClassReference();
-                if (ref instanceof ClassReference && ClassUtils.indexForElementInParameterList(arrayCreation) == 0) {
-                    PsiElement resolvedClass = ((ClassReference) ref).resolve();
-                    PhpClass callingClass = resolvedClass instanceof PhpClass ? (PhpClass) resolvedClass : null;
+                if (ref instanceof ClassReference classReference
+                        && ClassUtils.indexForElementInParameterList(arrayCreation) == 0) {
+                    PsiElement resolvedClass = classReference.resolve();
+                    PhpClass callingClass = resolvedClass instanceof PhpClass resolved ? resolved : null;
                     PhpClass superClass = ClassUtils.getClass(PhpIndex.getInstance(methodRef.getProject()), "\\yii\\base\\Widget");
                     if (ClassUtils.isClassInheritsOrEqual(callingClass, superClass, 100)) {
                         return callingClass;
@@ -113,8 +109,8 @@ public class ObjectFactoryUtils {
                             && method.getParameters().length == 2 &&
                             method.getParameters()[0].getName().equals("class")) {
                         PsiElement element = methodRef.getParameters()[0];
-                        if (element instanceof PhpPsiElement) {
-                            PhpClass widgetClass = ClassUtils.getPhpClassUniversal(methodRef.getProject(), (PhpPsiElement) element);
+                        if (element instanceof PhpPsiElement phpElement) {
+                            PhpClass widgetClass = ClassUtils.getPhpClassUniversal(methodRef.getProject(), phpElement);
                             if (widgetClass != null) {
                                 return widgetClass;
                             }
@@ -131,26 +127,25 @@ public class ObjectFactoryUtils {
         PsiElement parent = getParent(arrayCreation, 2);
         if (parent instanceof ArrayCreationExpression) {
             PsiElement possibleHashElement = getParent(arrayCreation, 4);
-            if (!(possibleHashElement instanceof ArrayHashElement)) {
+            if (!(possibleHashElement instanceof ArrayHashElement hashElement)) {
                 return null;
             }
 
-            PsiElement key = ((ArrayHashElement) possibleHashElement).getKey();
+            PsiElement key = hashElement.getKey();
             if (key != null &&
                     key.getText() != null &&
                     key.getText().replace("\"", "").replace("\'", "").equals("columns")) {
                 PsiElement methodRef = getParent(possibleHashElement, 3);
-                if (methodRef instanceof MethodReference) {
-                    MethodReference method = (MethodReference) methodRef;
+                if (methodRef instanceof MethodReference method) {
                     if (method.getClassReference() != null) {
                         PhpExpression methodClass = method.getClassReference();
-                        if (!(methodClass instanceof ClassReference)) {
+                        if (!(methodClass instanceof ClassReference classReference)) {
                             return null;
                         }
 
                         PhpIndex phpIndex = PhpIndex.getInstance(methodClass.getProject());
-                        PsiElement resolvedClass = ((ClassReference) methodClass).resolve();
-                        PhpClass callingClass = resolvedClass instanceof PhpClass ? (PhpClass) resolvedClass : null;
+                        PsiElement resolvedClass = classReference.resolve();
+                        PhpClass callingClass = resolvedClass instanceof PhpClass resolved ? resolved : null;
                         if (callingClass != null && ClassUtils.isClassInheritsOrEqual(callingClass, "\\yii\\grid\\GridView", phpIndex)) {
                             return ClassUtils.getClass(phpIndex, "\\yii\\grid\\DataColumn");
                         }
@@ -214,8 +209,8 @@ public class ObjectFactoryUtils {
         }
 
         PsiElement arrayParent = getParent(arrayCreation, 2);
-        if (arrayParent instanceof ArrayHashElement) {
-            context = getContextByHash((ArrayHashElement) arrayParent, dir);
+        if (arrayParent instanceof ArrayHashElement hashElement) {
+            context = getContextByHash(hashElement, dir);
             if (context.getCandidateClass() != null) {
                 return context;
             }
@@ -268,19 +263,17 @@ public class ObjectFactoryUtils {
      */
     @Nullable
     private static PhpClass getClassByParameterType(ArrayCreationExpression arrayCreation) {
-        if (arrayCreation.getParent() instanceof ParameterList) {
+        if (arrayCreation.getParent() instanceof ParameterList parameterList) {
             int index = ClassUtils.indexForElementInParameterList(arrayCreation);
             if (index > -1) {
-                PsiElement possibleMethodRef = arrayCreation.getParent().getParent();
-                if (possibleMethodRef instanceof MethodReference) {
-                    PsiElement resolvedMethod = ((MethodReference) possibleMethodRef).resolve();
-                    Method method = resolvedMethod instanceof Method ? (Method) resolvedMethod : null;
-                    if (method != null && method.getParameters().length > index) {
-                        Parameter parameter = method.getParameters()[index];
-                        PhpClass resultClass = ClassUtils.getElementType(parameter);
-                        if (resultClass != null) {
-                            return resultClass;
-                        }
+                PsiElement possibleMethodRef = parameterList.getParent();
+                if (possibleMethodRef instanceof MethodReference methodReference
+                        && methodReference.resolve() instanceof Method method
+                        && method.getParameters().length > index) {
+                    Parameter parameter = method.getParameters()[index];
+                    PhpClass resultClass = ClassUtils.getElementType(parameter);
+                    if (resultClass != null) {
+                        return resultClass;
                     }
                 }
             }
@@ -303,16 +296,14 @@ public class ObjectFactoryUtils {
         }
 
         PsiElement possibleMethodReference = getParent(arrayCreation, 2);
-        if (!(possibleMethodReference instanceof MethodReference)) {
+        if (!(possibleMethodReference instanceof MethodReference methodReference)) {
             return ObjectFactoryContext.none();
         }
 
-        PsiElement resolvedMethod = ((MethodReference) possibleMethodReference).resolve();
-        if (!(resolvedMethod instanceof Method)) {
+        if (!(methodReference.resolve() instanceof Method method)) {
             return ObjectFactoryContext.none();
         }
 
-        Method method = (Method) resolvedMethod;
         String methodName = method.getName();
         Parameter[] parameters = method.getParameters();
         PhpClass containingClass = method.getContainingClass();
@@ -329,9 +320,9 @@ public class ObjectFactoryUtils {
         ObjectTypeResolution target = resolveObjectType(parameters[0]);
         return ObjectFactoryContextResolver.decide(
                 ObjectFactoryContext.Source.YII_SETTER,
-                target.candidateClass,
-                target.unambiguous,
-                isYiiConfigurableObject(target.candidateClass)
+                target.candidateClass(),
+                target.unambiguous(),
+                isYiiConfigurableObject(target.candidateClass())
         );
     }
 
@@ -389,20 +380,13 @@ public class ObjectFactoryUtils {
                 || normalizedType.equals("null");
     }
 
-    private static final class ObjectTypeResolution {
-        private final PhpClass candidateClass;
-        private final boolean unambiguous;
-
-        private ObjectTypeResolution(@Nullable PhpClass candidateClass, boolean unambiguous) {
-            this.candidateClass = candidateClass;
-            this.unambiguous = unambiguous;
-        }
+    private record ObjectTypeResolution(@Nullable PhpClass candidateClass, boolean unambiguous) {
     }
 
     @NotNull
     private static ObjectFactoryContext getContextByHash(ArrayHashElement hashElement, @Nullable PsiDirectory dir) {
-        if (hashElement.getParent() instanceof ArrayCreationExpression) {
-            ObjectFactoryContext parentContext = resolveContext((ArrayCreationExpression) hashElement.getParent(), dir);
+        if (hashElement.getParent() instanceof ArrayCreationExpression parentArray) {
+            ObjectFactoryContext parentContext = resolveContext(parentArray, dir);
             PhpClass parentClass = parentContext.getTargetClass();
             if (parentClass == null) {
                 return ObjectFactoryContext.none();
@@ -441,8 +425,8 @@ public class ObjectFactoryUtils {
 
     @Nullable
     private static PhpNamedElement getWritableMemberTypeElement(@NotNull PhpClassMember member) {
-        if (member instanceof Method) {
-            Parameter[] parameters = ((Method) member).getParameters();
+        if (member instanceof Method method) {
+            Parameter[] parameters = method.getParameters();
             return parameters.length == 1 ? parameters[0] : null;
         }
 
@@ -465,8 +449,8 @@ public class ObjectFactoryUtils {
     private static PhpClass getClassByInstantiation(PhpExpression element) {
 
         PsiElement newElement = getParent(element, 2);
-        if (newElement instanceof NewExpression) {
-            ClassReference ref = ((NewExpression) newElement).getClassReference();
+        if (newElement instanceof NewExpression newExpression) {
+            ClassReference ref = newExpression.getClassReference();
             if (ref == null) {
                 return null;
             }
@@ -475,11 +459,10 @@ public class ObjectFactoryUtils {
             if(possiblePhpClass instanceof Method){ // Since 2021.1 resolved into Method __construct() of BaseObject class
                 possiblePhpClass = ClassUtils.getClass(PhpIndex.getInstance(element.getProject()), ref.getFQN());
             }
-            if (!(possiblePhpClass instanceof PhpClass)) {
+            if (!(possiblePhpClass instanceof PhpClass phpClass)) {
                 return null;
             }
 
-            PhpClass phpClass = (PhpClass) possiblePhpClass;
             Method constructor = phpClass.getConstructor();
             if (constructor == null) {
                 return null;
@@ -510,68 +493,50 @@ public class ObjectFactoryUtils {
 
 
     private static PhpClass getStandardPhpClass(PhpIndex phpIndex, String shortName) {
-        switch (shortName) {
+        return switch (shortName) {
             // web/Application
-            case "request":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\Request");
-            case "response":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\Response");
-            case "session":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\Session");
-            case "user":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\User");
-            case "errorHandler":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\ErrorHandler");
+            case "request" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\Request");
+            case "response" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\Response");
+            case "session" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\Session");
+            case "user" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\User");
+            case "errorHandler" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\ErrorHandler");
             // base/Application
-            case "log":
-                return ClassUtils.getClass(phpIndex, "\\yii\\log\\Dispatcher");
-            case "view":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\View");
-            case "formatter":
-                return ClassUtils.getClass(phpIndex, "yii\\i18n\\Formatter");
-            case "i18n":
-                return ClassUtils.getClass(phpIndex, "yii\\i18n\\I18N");
-            case "mailer":
-                return ClassUtils.getClass(phpIndex, "\\yii\\swiftmailer\\Mailer");
-            case "urlManager":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\UrlManager");
-            case "assetManager":
-                return ClassUtils.getClass(phpIndex, "\\yii\\web\\AssetManager");
-            case "security":
-                return ClassUtils.getClass(phpIndex, "\\yii\\base\\Security");
+            case "log" -> ClassUtils.getClass(phpIndex, "\\yii\\log\\Dispatcher");
+            case "view" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\View");
+            case "formatter" -> ClassUtils.getClass(phpIndex, "yii\\i18n\\Formatter");
+            case "i18n" -> ClassUtils.getClass(phpIndex, "yii\\i18n\\I18N");
+            case "mailer" -> ClassUtils.getClass(phpIndex, "\\yii\\swiftmailer\\Mailer");
+            case "urlManager" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\UrlManager");
+            case "assetManager" -> ClassUtils.getClass(phpIndex, "\\yii\\web\\AssetManager");
+            case "security" -> ClassUtils.getClass(phpIndex, "\\yii\\base\\Security");
             // custom
-            case "db":
-                return ClassUtils.getClass(phpIndex, "\\yii\\db\\Connection");
+            case "db" -> ClassUtils.getClass(phpIndex, "\\yii\\db\\Connection");
+            default -> null;
+        };
+    }
+
+    @Nullable
+    static ArrayCreationExpression getArrayCreationByVarRef(Variable value) {
+        PsiElement arrayDecl = value.resolve();
+        if (arrayDecl != null && arrayDecl.getParent() != null && arrayDecl.getParent().getChildren().length > 1) {
+            PsiElement psiElement = arrayDecl.getParent().getLastChild();
+            if (psiElement instanceof ArrayCreationExpression arrayCreation) {
+                return arrayCreation;
+            }
         }
         return null;
     }
 
     @Nullable
-    static ArrayCreationExpression getArrayCreationByVarRef(Variable value) {
-        ArrayCreationExpression arrayCreation;
-        PsiElement arrayDecl = value.resolve();
-        if (arrayDecl != null && arrayDecl.getParent() != null && arrayDecl.getParent().getChildren().length > 1) {
-            PsiElement psiElement = arrayDecl.getParent().getLastChild();
-            if (psiElement instanceof ArrayCreationExpression)
-                arrayCreation = (ArrayCreationExpression) psiElement;
-            else
-                return null;
-        } else
-            return null;
-        return arrayCreation;
-    }
-
-    @Nullable
     static ArrayCreationExpression getArrayCreationByFieldRef(FieldReference value) {
-        ArrayCreationExpression arrayCreation = null;
         PsiElement arrayDecl = value.resolve();
         if (arrayDecl != null && arrayDecl.getParent() != null && arrayDecl.getParent().getChildren().length > 1) {
             PsiElement psiElement = arrayDecl.getLastChild();
-            if (psiElement instanceof ArrayCreationExpression) {
-                arrayCreation = (ArrayCreationExpression) psiElement;
+            if (psiElement instanceof ArrayCreationExpression arrayCreation) {
+                return arrayCreation;
             }
         }
 
-        return arrayCreation;
+        return null;
     }
 }

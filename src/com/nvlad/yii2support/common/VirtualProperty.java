@@ -57,23 +57,12 @@ public class VirtualProperty {
 
     @NotNull
     private String DbTypeToSql(String type) {
-        switch (type.toUpperCase()) {
-            case "INT": return "int";
-            case "TINYINT": return "bool";
-            case "BOOLEAN": return "bool";
-            case "BIGINT": return "int";
-            case "SMALLINT": return "int";
-            case "NUMERIC": return "int";
-            case "MEDIUMINT": return "int";
-            case "SMALLSERIAL": return "int";
-            case "SERIAL": return "int";
-            case "BIGSERIAL": return "int";
-            case "FLOAT": return "float";
-            case "REAL": return "float";
-            case "DOUBLE PRECISION": return "float";
-            case "DOUBLE": return "float";
-            case "TIMESTAMP": return "int";
-        }
-        return "string";
+        return switch (type.toUpperCase()) {
+            case "INT", "BIGINT", "SMALLINT", "NUMERIC", "MEDIUMINT",
+                    "SMALLSERIAL", "SERIAL", "BIGSERIAL", "TIMESTAMP" -> "int";
+            case "TINYINT", "BOOLEAN" -> "bool";
+            case "FLOAT", "REAL", "DOUBLE PRECISION", "DOUBLE" -> "float";
+            default -> "string";
+        };
     }
 }

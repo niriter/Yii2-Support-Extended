@@ -30,14 +30,13 @@ public final class TreeUtil {
     public static void updateTree(
             JTree tree,
             Map<MigrateCommand, Collection<Migration>> migrationMap,
-            boolean newestFirst
+        boolean newestFirst
     ) {
         Object currentRoot = tree.getModel().getRoot();
-        if (!(currentRoot instanceof DefaultMutableTreeNode)) {
+        if (!(currentRoot instanceof DefaultMutableTreeNode oldRoot)) {
             return;
         }
 
-        DefaultMutableTreeNode oldRoot = (DefaultMutableTreeNode) currentRoot;
         TreeState state = captureState(tree, oldRoot);
         CheckedTreeNode newRoot = buildTree(snapshot(migrationMap, newestFirst), oldRoot);
 
@@ -68,8 +67,7 @@ public final class TreeUtil {
 
     private static CheckedTreeNode buildTree(TreeSnapshot snapshot, DefaultMutableTreeNode oldRoot) {
         CheckedTreeNode root = new CheckedTreeNode(oldRoot.getUserObject());
-        if (oldRoot instanceof CheckedTreeNode) {
-            CheckedTreeNode checkedRoot = (CheckedTreeNode) oldRoot;
+        if (oldRoot instanceof CheckedTreeNode checkedRoot) {
             root.setChecked(checkedRoot.isChecked());
             root.setEnabled(checkedRoot.isEnabled());
         }
@@ -166,12 +164,10 @@ public final class TreeUtil {
     private static Object nodeKey(Object component) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) component;
         Object userObject = node.getUserObject();
-        if (userObject instanceof MigrateCommand) {
-            MigrateCommand command = (MigrateCommand) userObject;
+        if (userObject instanceof MigrateCommand command) {
             return new CommandKey(command instanceof DefaultMigrateCommand, command.isDefault, command.command);
         }
-        if (userObject instanceof Migration) {
-            Migration migration = (Migration) userObject;
+        if (userObject instanceof Migration migration) {
             return new MigrationKey(migration.namespace, migration.name, migration.path);
         }
         return userObject;

@@ -115,19 +115,12 @@ public class TreeUtilTest extends TestCase {
         PhpClass phpClass = (PhpClass) Proxy.newProxyInstance(
                 PhpClass.class.getClassLoader(),
                 new Class<?>[]{PhpClass.class},
-                (proxy, method, arguments) -> {
-                    switch (method.getName()) {
-                        case "getName":
-                            return name;
-                        case "getNamespaceName":
-                            return "\\";
-                        case "hashCode":
-                            return System.identityHashCode(proxy);
-                        case "equals":
-                            return proxy == arguments[0];
-                        default:
-                            return defaultValue(method.getReturnType());
-                    }
+                (proxy, method, arguments) -> switch (method.getName()) {
+                    case "getName" -> name;
+                    case "getNamespaceName" -> "\\";
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> proxy == arguments[0];
+                    default -> defaultValue(method.getReturnType());
                 }
         );
         return new Migration(phpClass, path);

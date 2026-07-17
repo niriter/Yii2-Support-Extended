@@ -65,9 +65,9 @@ public final class MigrationService implements Disposable {
             return;
         }
 
-        boolean changed = !initialized || !snapshot.migrationMap.equals(migrationMap);
-        migrationMap = snapshot.migrationMap;
-        migrations = snapshot.migrations;
+        boolean changed = !initialized || !snapshot.migrationMap().equals(migrationMap);
+        migrationMap = snapshot.migrationMap();
+        migrations = snapshot.migrations();
         initialized = true;
 
         if (changed) {
@@ -184,16 +184,9 @@ public final class MigrationService implements Disposable {
         return new Migration(phpClass, path);
     }
 
-    private static final class MigrationSnapshot {
-        private final Map<MigrateCommand, Collection<Migration>> migrationMap;
-        private final List<Migration> migrations;
-
-        private MigrationSnapshot(
-                Map<MigrateCommand, Collection<Migration>> migrationMap,
-                List<Migration> migrations
-        ) {
-            this.migrationMap = migrationMap;
-            this.migrations = migrations;
-        }
+    private record MigrationSnapshot(
+            Map<MigrateCommand, Collection<Migration>> migrationMap,
+            List<Migration> migrations
+    ) {
     }
 }

@@ -41,15 +41,13 @@ public class MigrateCommand implements Comparable<MigrateCommand>, Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof MigrateCommand)) {
+        if (!(obj instanceof MigrateCommand options)) {
             return false;
         }
 
         if (obj == this) {
             return true;
         }
-
-        MigrateCommand options = (MigrateCommand) obj;
 
         return options.isDefault == isDefault
                 && options.useTablePrefix == useTablePrefix

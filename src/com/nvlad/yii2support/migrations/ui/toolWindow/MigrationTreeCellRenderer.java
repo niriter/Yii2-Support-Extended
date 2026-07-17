@@ -43,8 +43,7 @@ class MigrationTreeCellRenderer extends CheckboxTree.CheckboxTreeCellRenderer {
             return;
         }
 
-        if (object instanceof Migration) {
-            Migration migration = (Migration) object;
+        if (object instanceof Migration migration) {
             DefaultMutableTreeNode nodeParent = (DefaultMutableTreeNode) treeNode.getParent();
             final String name;
             if (nodeParent != null && nodeParent.getUserObject() instanceof MigrateCommand) {
@@ -98,8 +97,7 @@ class MigrationTreeCellRenderer extends CheckboxTree.CheckboxTreeCellRenderer {
             }
         }
 
-        if (object instanceof MigrateCommand) {
-            MigrateCommand command = (MigrateCommand) object;
+        if (object instanceof MigrateCommand command) {
             renderer.setIcon(AllIcons.Nodes.Folder);
             renderer.append(command.command, SimpleTextAttributes.REGULAR_ATTRIBUTES, true);
 

@@ -52,36 +52,24 @@ final class ObjectFactoryContextResolver {
             );
         }
 
-        switch (source) {
-            case EXPLICIT_CLASS_KEY:
-            case YII_CREATE_OBJECT:
-            case BASE_OBJECT_CONSTRUCTOR:
-            case WIDGET_CONFIGURATION:
-            case GRID_COLUMN:
-            case APPLICATION_CONFIG_COMPONENT:
-                return ObjectFactoryContext.confirmed(source, candidateClass);
-
-            case NESTED_WRITABLE_PROPERTY:
-            case YII_SETTER:
-                return configurableTarget
+        return switch (source) {
+            case EXPLICIT_CLASS_KEY, YII_CREATE_OBJECT, BASE_OBJECT_CONSTRUCTOR,
+                    WIDGET_CONFIGURATION, GRID_COLUMN, APPLICATION_CONFIG_COMPONENT ->
+                    ObjectFactoryContext.confirmed(source, candidateClass);
+            case NESTED_WRITABLE_PROPERTY, YII_SETTER -> configurableTarget
                         ? ObjectFactoryContext.confirmed(source, candidateClass)
                         : ObjectFactoryContext.rejected(
                                 source,
                                 candidateClass,
                                 "the writable target type is not a configurable Yii object"
                         );
-
-            case METHOD_PARAMETER_TYPE:
-                return ObjectFactoryContext.rejected(
-                        source,
-                        candidateClass,
-                        "an object-typed method parameter is not an Object Factory signal"
-                );
-
-            case NONE:
-            default:
-                return ObjectFactoryContext.none();
-        }
+            case METHOD_PARAMETER_TYPE -> ObjectFactoryContext.rejected(
+                    source,
+                    candidateClass,
+                    "an object-typed method parameter is not an Object Factory signal"
+            );
+            case NONE -> ObjectFactoryContext.none();
+        };
     }
 
     @Nullable

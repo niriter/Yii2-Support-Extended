@@ -52,9 +52,9 @@ public final class DataSourceSyncCompat {
                 syncMethod.invoke(manager, context, true, false);
             }
         } catch (IllegalAccessException | InvocationTargetException | RuntimeException exception) {
-            Throwable cause = exception instanceof InvocationTargetException
-                    && ((InvocationTargetException) exception).getCause() != null
-                    ? ((InvocationTargetException) exception).getCause()
+            Throwable cause = exception instanceof InvocationTargetException invocationException
+                    && invocationException.getCause() != null
+                    ? invocationException.getCause()
                     : exception;
             LOG.error("Unable to synchronize the database data source", cause);
         }

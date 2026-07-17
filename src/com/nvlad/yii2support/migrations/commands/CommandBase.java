@@ -36,11 +36,10 @@ public abstract class CommandBase implements Runnable {
     void repaintMigrationNode(Migration migration) {
         myContext.application().invokeLater(() -> {
             TreeModel currentModel = myContext.migrationTree().getModel();
-            if (!(currentModel instanceof DefaultTreeModel)) {
+            if (!(currentModel instanceof DefaultTreeModel treeModel)) {
                 return;
             }
 
-            DefaultTreeModel treeModel = (DefaultTreeModel) currentModel;
             DefaultMutableTreeNode treeNode = findMigrationNode(treeModel.getRoot(), migration);
             if (treeNode == null) {
                 return;
@@ -55,15 +54,14 @@ public abstract class CommandBase implements Runnable {
     }
 
     static DefaultMutableTreeNode findMigrationNode(Object root, Migration migration) {
-        if (!(root instanceof DefaultMutableTreeNode)) {
+        if (!(root instanceof DefaultMutableTreeNode rootNode)) {
             return null;
         }
 
-        Enumeration<TreeNode> nodes = ((DefaultMutableTreeNode) root).breadthFirstEnumeration();
+        Enumeration<TreeNode> nodes = rootNode.breadthFirstEnumeration();
         while (nodes.hasMoreElements()) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) nodes.nextElement();
-            if (node.getUserObject() instanceof Migration) {
-                Migration candidate = (Migration) node.getUserObject();
+            if (node.getUserObject() instanceof Migration candidate) {
                 if (sameMigration(candidate, migration)) {
                     return node;
                 }

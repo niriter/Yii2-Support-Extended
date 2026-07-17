@@ -20,15 +20,11 @@ public class MigrateCommandTableModel extends AddEditRemovePanel.TableModel<Migr
 
     @Override
     public Object getField(MigrateCommand command, int i) {
-        switch (i) {
-            case 0:
-                return command.command;
-            case 1:
-                return command.migrationTable;
-            case 2:
-                return command.db;
-        }
-
-        return null;
+        return switch (i) {
+            case 0 -> command.command;
+            case 1 -> command.migrationTable;
+            case 2 -> command.db;
+            default -> null;
+        };
     }
 }

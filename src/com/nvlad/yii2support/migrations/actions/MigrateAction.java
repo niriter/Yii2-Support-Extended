@@ -39,8 +39,7 @@ public final class MigrateAction extends MigrateBaseAction {
         List<Migration> migrations;
         DefaultMutableTreeNode pathNode;
 
-        if (userObject instanceof Migration) {
-            Migration selectedMigration = (Migration) userObject;
+        if (userObject instanceof Migration selectedMigration) {
             pathNode = (DefaultMutableTreeNode) treeNode.getParent();
             migrations = MigrationSelectionPlanner.planToSelection(
                     operation,
@@ -83,8 +82,8 @@ public final class MigrateAction extends MigrateBaseAction {
             return false;
         }
 
-        if (userObject instanceof Migration) {
-            return operation.accepts(((Migration) userObject).status);
+        if (userObject instanceof Migration migration) {
+            return operation.accepts(migration.status);
         }
 
         return (userObject instanceof String || userObject instanceof MigrateCommand)
@@ -97,8 +96,8 @@ public final class MigrateAction extends MigrateBaseAction {
         Enumeration<?> children = node.children();
         while (children.hasMoreElements()) {
             Object userObject = ((DefaultMutableTreeNode) children.nextElement()).getUserObject();
-            if (userObject instanceof Migration) {
-                migrations.add((Migration) userObject);
+            if (userObject instanceof Migration migration) {
+                migrations.add(migration);
             }
         }
 

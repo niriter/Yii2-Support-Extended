@@ -147,9 +147,9 @@ public final class MigrationCommand extends CommandBase {
         DbPsiFacade facade = DbPsiFacade.getInstance(myContext.project());
         for (DbDataSource dataSource : facade.getDataSources()) {
             RawDataSource rawDataSource = dataSource.getDelegateDataSource();
-            if (rawDataSource instanceof LocalDataSource
-                    && DbImplUtil.isConnected(myContext.project(), (LocalDataSource) rawDataSource)) {
-                DataSourceSyncCompat.synchronize(myContext.project(), (LocalDataSource) rawDataSource);
+            if (rawDataSource instanceof LocalDataSource localDataSource
+                    && DbImplUtil.isConnected(myContext.project(), localDataSource)) {
+                DataSourceSyncCompat.synchronize(myContext.project(), localDataSource);
             }
         }
     }

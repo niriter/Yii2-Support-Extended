@@ -74,14 +74,14 @@ public final class MigrationsVirtualFileMonitor implements BulkFileListener {
         }
 
         PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-        if (!(psiFile instanceof PhpFile)) {
+        if (!(psiFile instanceof PhpFile phpFile)) {
             return false;
         }
 
         PhpIndex phpIndex = PhpIndex.getInstance(project);
-        for (PhpInstruction instruction : ((PhpFile) psiFile).getControlFlow().getInstructions()) {
-            if (instruction instanceof PhpClassDeclarationInstruction) {
-                PhpClass phpClass = ((PhpClassDeclarationInstruction) instruction).getClassDeclaration();
+        for (PhpInstruction instruction : phpFile.getControlFlow().getInstructions()) {
+            if (instruction instanceof PhpClassDeclarationInstruction declaration) {
+                PhpClass phpClass = declaration.getClassDeclaration();
                 if (!phpClass.isAbstract()
                         && ClassUtils.isClassInheritsOrEqual(phpClass, "\\yii\\db\\Migration", phpIndex)) {
                     return true;

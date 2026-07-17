@@ -52,9 +52,8 @@ public class MigrationServiceTest extends TestCase {
         return (Project) Proxy.newProxyInstance(
                 Project.class.getClassLoader(),
                 new Class<?>[]{Project.class},
-                (proxy, method, arguments) -> {
-                    switch (method.getName()) {
-                        case "getService":
+                (proxy, method, arguments) -> switch (method.getName()) {
+                    case "getService" -> {
                             if (arguments != null && arguments.length == 1
                                     && arguments[0] == MigrationService.class) {
                                 MigrationService current = migrationService.get();
@@ -62,21 +61,15 @@ public class MigrationServiceTest extends TestCase {
                                     current = new MigrationService((Project) proxy);
                                     migrationService.compareAndSet(null, current);
                                 }
-                                return migrationService.get();
+                                yield migrationService.get();
                             }
-                            return null;
-                        case "isDisposed":
-                            return false;
-                        case "getName":
-                        case "toString":
-                            return name;
-                        case "hashCode":
-                            return System.identityHashCode(proxy);
-                        case "equals":
-                            return proxy == arguments[0];
-                        default:
-                            return defaultValue(method.getReturnType());
+                            yield null;
                     }
+                    case "isDisposed" -> false;
+                    case "getName", "toString" -> name;
+                    case "hashCode" -> System.identityHashCode(proxy);
+                    case "equals" -> proxy == arguments[0];
+                    default -> defaultValue(method.getReturnType());
                 }
         );
     }
