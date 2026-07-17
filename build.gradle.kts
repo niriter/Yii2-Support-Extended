@@ -176,10 +176,4 @@ tasks {
     named<Test>("test") {
         exclude("**/*PsiIntegrationTest.class")
     }
-
-    register("runPluginVerifier") {
-        group = "verification"
-        description = "Compatibility alias for the IntelliJ Platform 1.x verifier task name."
-        dependsOn("verifyPlugin")
-    }
 }
