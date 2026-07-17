@@ -84,7 +84,6 @@ Use plugin settings window to set up table prefix
 ### Migration tool
 - Migrations UI Navigator
 - Apply/Undo/Redo migrations from UI
-- Support Remote CLI for Docker, Vagrant, VM, Remote servers
 - Sync IDE DataBase schema after Apply/Undo/Redo migration(s)
 - View command execution output
 
