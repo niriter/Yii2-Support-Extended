@@ -65,14 +65,15 @@ public final class YiiCompletionAutoPopupHandler extends TypedHandlerDelegate {
 
     private static boolean shouldAutoPopup(@NotNull PsiElement position, char charTyped) {
         if (charTyped == '\'' || charTyped == '"') {
-            PsiElement parent = position.getParent();
-            if (parent instanceof ArrayCreationExpression
-                    || parent instanceof ArrayAccessExpression
-                    || parent instanceof MethodReference) {
+            if (isTranslationArgument(position) || isViewArgument(position, charTyped)) {
                 return true;
             }
 
-            if (isTranslationArgument(position) || isViewArgument(position, charTyped)) {
+            PsiElement parent = position.getParent();
+            if (parent instanceof ArrayCreationExpression
+                    || parent instanceof ArrayAccessExpression
+                    || parent instanceof MethodReference
+                    || isMethodReferenceArgument(position)) {
                 return true;
             }
         }
@@ -95,7 +96,8 @@ public final class YiiCompletionAutoPopupHandler extends TypedHandlerDelegate {
                 && ("$category".equals(position.getText()) || "$message".equals(position.getText()))) {
             return true;
         }
-        return position.getNextSibling() instanceof ParameterList;
+        return position.getNextSibling() instanceof ParameterList
+                || isParameterListOf(position, reference);
     }
 
     private static boolean isViewArgument(@NotNull PsiElement position, char charTyped) {
@@ -108,7 +110,8 @@ public final class YiiCompletionAutoPopupHandler extends TypedHandlerDelegate {
             if (position instanceof LeafPsiElement && "$view".equals(position.getText())) {
                 return true;
             }
-            return position.getNextSibling() instanceof ParameterList;
+            return position.getNextSibling() instanceof ParameterList
+                    || isParameterListOf(position, reference);
         }
 
         if (charTyped != '@' || !(position.getParent() instanceof StringLiteralExpression)) {
@@ -118,6 +121,19 @@ public final class YiiCompletionAutoPopupHandler extends TypedHandlerDelegate {
         ParameterList parameterList = PsiTreeUtil.getParentOfType(position, ParameterList.class);
         PsiElement[] parameters = parameterList == null ? PsiElement.EMPTY_ARRAY : parameterList.getParameters();
         return parameters.length > 0 && parameters[0] == position.getParent();
+    }
+
+    private static boolean isMethodReferenceArgument(@NotNull PsiElement position) {
+        return position.getParent() instanceof ParameterList parameterList
+                && parameterList.getParent() instanceof MethodReference;
+    }
+
+    private static boolean isParameterListOf(
+            @NotNull PsiElement position,
+            @NotNull MethodReference reference
+    ) {
+        return position.getParent() instanceof ParameterList parameterList
+                && parameterList.getParent() == reference;
     }
 
     private static boolean isQueryCall(@NotNull PsiElement position) {
