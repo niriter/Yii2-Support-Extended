@@ -125,12 +125,12 @@ abstract class MigrateBaseAction extends AnActionButton {
         return null;
     }
 
-    private String preparePath(String path, String projectRoot) {
+    static String preparePath(String path, String projectRoot) {
         if (path.startsWith("@") || path.startsWith("/")) {
             return path;
         }
 
-        if (path.charAt(1) == ':') {
+        if (path.length() > 1 && path.charAt(1) == ':') {
             return path;
         }
 
