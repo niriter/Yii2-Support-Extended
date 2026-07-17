@@ -30,8 +30,22 @@ public class PluginDescriptorTest extends TestCase {
             assertTrue("PHP plugin dependency must be declared", hasDependency(plugin, "com.jetbrains.php"));
             assertEquals("legacy application components must not be registered", 0,
                     plugin.getElementsByTagName("application-components").getLength());
-            assertEquals("startup activity must be registered exactly once", 1,
-                    plugin.getElementsByTagName("postStartupActivity").getLength());
+            assertEquals("version notification startup activity must not be registered", 0,
+                    countExtensions(
+                            plugin,
+                            "postStartupActivity",
+                            "implementation",
+                            "com.nvlad.yii2support.PluginStartupActivity"
+                    ));
+            assertEquals("version notification settings must not be registered", 0,
+                    countExtensions(
+                            plugin,
+                            "applicationService",
+                            "serviceImplementation",
+                            "com.nvlad.yii2support.PluginGlobalSettings"
+                    ));
+            assertEquals("version notification group must not be registered", 0,
+                    countExtensions(plugin, "notificationGroup", "id", "Yii2 Navigator"));
             assertEquals("obsolete error submitter must not be registered", 0,
                     plugin.getElementsByTagName("errorHandler").getLength());
             assertEquals("Object Factory reference contributor must be registered exactly once", 1,

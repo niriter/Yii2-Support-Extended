@@ -34,9 +34,6 @@
     <extensions defaultExtensionNs="com.intellij">
 
         <projectService serviceImplementation="com.nvlad.yii2support.utils.Yii2SupportSettings"/>
-        <applicationService serviceImplementation="com.nvlad.yii2support.PluginGlobalSettings"/>
-        <postStartupActivity implementation="com.nvlad.yii2support.PluginStartupActivity"/>
-        <notificationGroup id="Yii2 Navigator" displayType="STICKY_BALLOON" isLogByDefault="true"/>
 
         <projectConfigurable instance="com.nvlad.yii2support.ui.settings.SettingsForm"
                              displayName="Yii2 Navigator"
