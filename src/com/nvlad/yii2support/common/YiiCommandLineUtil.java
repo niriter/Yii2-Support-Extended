@@ -4,25 +4,19 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.process.ProcessHandler;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.PathMappingSettings;
 import com.jetbrains.php.config.commandLine.PhpCommandSettings;
 import com.jetbrains.php.config.commandLine.PhpCommandSettingsBuilder;
-import com.jetbrains.php.run.remote.PhpRemoteInterpreterManager;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
 public class YiiCommandLineUtil {
-    private static final boolean is2016 = ApplicationInfo.getInstance().getMajorVersion().equals("2016");
-
     private static final String[] knownErrors = new String[]{
             "userName must not be null",
             "Auth cancel",
@@ -54,18 +48,11 @@ public class YiiCommandLineUtil {
         parameters.add("--color");
 
         PhpCommandSettings commandSettings = commandSettings(project, command, parameters);
-        GeneralCommandLine commandLine = commandSettings.createGeneralCommandLine();
         if (commandSettings.isRemote()) {
-            PhpRemoteInterpreterManager interpreterManager = PhpRemoteInterpreterManager.getInstance();
-            if (interpreterManager == null) {
-                return null;
-            }
-
-
             return null;
         }
 
-        return new OSProcessHandler(commandLine);
+        return new OSProcessHandler(commandSettings.createGeneralCommandLine());
     }
 
     public static void processError(Throwable e) {
@@ -83,16 +70,6 @@ public class YiiCommandLineUtil {
         }
 
         throw new RuntimeException(e);
-    }
-
-    private static Method getMethod(PhpRemoteInterpreterManager manager) throws NoSuchMethodException {
-        for (Method method : manager.getClass().getMethods()) {
-            if (method.getName().equals("getRemoteProcessHandler")) {
-                return method;
-            }
-        }
-
-        throw new NoSuchMethodException("getRemoteProcessHandler");
     }
 
     private static PhpCommandSettings commandSettings(Project project, String command, List<String> parameters) throws ExecutionException {

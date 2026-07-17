@@ -44,8 +44,6 @@ dependencies {
             "com.jetbrains.php",
             "com.intellij.database",
             "com.jetbrains.twig",
-            "org.jetbrains.plugins.phpstorm-remote-interpreter",
-            "org.jetbrains.plugins.terminal",
         )
         testFramework(TestFrameworkType.Bundled)
         pluginVerifier()
