@@ -1,5 +1,6 @@
 package com.nvlad.yii2support.migrations.ui.toolWindow;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -13,6 +14,7 @@ import com.intellij.ui.CheckedTreeNode;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
 import com.nvlad.yii2support.migrations.actions.*;
+import com.nvlad.yii2support.migrations.entities.MigrationOperation;
 import com.nvlad.yii2support.migrations.services.MigrationService;
 import com.nvlad.yii2support.migrations.util.TreeUtil;
 import com.nvlad.yii2support.utils.Yii2SupportSettings;
@@ -69,9 +71,9 @@ public class MigrationPanel extends SimpleToolWindowPanel {
         DefaultActionGroup group = new DefaultActionGroup();
         group.add(configureAction(new RefreshAction()));
         group.add(new Separator());
-        group.add(configureAction(new MigrateUpAction()));
-        group.add(configureAction(new MigrateDownAction()));
-        group.add(configureAction(new MigrateRedoAction()));
+        group.add(configureAction(new MigrateAction(MigrationOperation.UP, "Migrate Up", AllIcons.Actions.Execute)));
+        group.add(configureAction(new MigrateAction(MigrationOperation.DOWN, "Migrate Down", AllIcons.Actions.Undo)));
+        group.add(configureAction(new MigrateAction(MigrationOperation.REDO, "Redo Migrate", AllIcons.Actions.Rollback)));
         group.add(new Separator());
         group.add(configureAction(new OrderAscAction()));
 

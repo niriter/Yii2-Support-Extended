@@ -10,10 +10,7 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.content.Content;
 import com.nvlad.yii2support.common.YiiApplicationUtils;
 import com.nvlad.yii2support.migrations.commands.CommandBase;
-import com.nvlad.yii2support.migrations.entities.DefaultMigrateCommand;
 import com.nvlad.yii2support.migrations.entities.MigrateCommand;
-import com.nvlad.yii2support.migrations.entities.Migration;
-import com.nvlad.yii2support.migrations.entities.MigrationStatus;
 import com.nvlad.yii2support.migrations.ui.toolWindow.ConsolePanel;
 import com.nvlad.yii2support.migrations.ui.toolWindow.MigrationPanel;
 import com.nvlad.yii2support.migrations.ui.toolWindow.MigrationsToolWindowFactory;
@@ -26,7 +23,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 
 abstract class MigrateBaseAction extends AnActionButton {
@@ -89,60 +85,6 @@ abstract class MigrateBaseAction extends AnActionButton {
                 command.run();
             }
         });
-    }
-
-    boolean enableDownButtons(DefaultMutableTreeNode treeNode) {
-        Object userObject = treeNode.getUserObject();
-        if (userObject instanceof Migration) {
-            MigrationStatus status = ((Migration) userObject).status;
-            return status == MigrationStatus.Success || status == MigrationStatus.RollbackError;
-        }
-
-        if (userObject instanceof DefaultMigrateCommand) {
-            return false;
-        }
-
-        if (userObject instanceof String || userObject instanceof MigrateCommand) {
-            Enumeration migrationEnumeration = treeNode.children();
-            while (migrationEnumeration.hasMoreElements()) {
-                Object migration = ((DefaultMutableTreeNode) migrationEnumeration.nextElement()).getUserObject();
-                if (migration instanceof Migration) {
-                    MigrationStatus status = ((Migration) migration).status;
-                    if (status == MigrationStatus.Success || status == MigrationStatus.RollbackError) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    boolean enableUpButtons(DefaultMutableTreeNode treeNode) {
-        Object userObject = treeNode.getUserObject();
-        if (userObject instanceof Migration) {
-            MigrationStatus status = ((Migration) userObject).status;
-            return ((Migration) userObject).status != MigrationStatus.Success && status != MigrationStatus.RollbackError;
-        }
-
-        if (userObject instanceof DefaultMigrateCommand) {
-            return false;
-        }
-
-        if (userObject instanceof String || userObject instanceof MigrateCommand) {
-            Enumeration migrationEnumeration = treeNode.children();
-            while (migrationEnumeration.hasMoreElements()) {
-                Object migration = ((DefaultMutableTreeNode) migrationEnumeration.nextElement()).getUserObject();
-                if (migration instanceof Migration) {
-                    MigrationStatus status = ((Migration) migration).status;
-                    if (status != MigrationStatus.Success && status != MigrationStatus.RollbackError) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     @NotNull
