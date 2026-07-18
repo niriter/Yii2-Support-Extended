@@ -6,13 +6,14 @@
     <incompatible-with>com.yii2support</incompatible-with>
 
     <change-notes><![CDATA[
-      <b>Yii2 Navigator 1.1.0</b><br/>
+      <b>Yii2 Navigator 1.2.0</b><br/>
       <ul>
-        <li>Add inspections for unknown and interpolated messages in literal <code>Yii::t()</code> calls.</li>
-        <li>Report messages missing from PHP translation providers.</li>
-        <li>Report possibly unused PHP translation keys as weak warnings.</li>
-        <li>Use one indexed provider catalog for category and message completion under both <code>messages/&lt;locale&gt;</code> and <code>translations/&lt;locale&gt;</code>.</li>
-        <li>Translation lookup for dynamic category/message expressions and non-PHP usages is outside this initial i18n inspection release.</li>
+        <li>Support PhpStorm 2026.2 while retaining compatibility with PhpStorm 2024.1 through 2026.1.</li>
+        <li>Restore safe navigation from Yii Object Factory configuration keys to writable fields and setters.</li>
+        <li>Make migration Apply, Undo, and Redo ordering deterministic, preserve tree expansion and selection during refreshes, and handle short migration paths safely.</li>
+        <li>Restore automatic completion popups in method arguments using supported PhpStorm APIs.</li>
+        <li>Keep optional Twig view support isolated when the Twig plugin is unavailable.</li>
+        <li>Remove the legacy startup update notification and obsolete Remote CLI support claim.</li>
       </ul>
     ]]></change-notes>
 

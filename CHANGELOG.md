@@ -1,9 +1,17 @@
 Yii2 Navigator Change Log
 =========================
 
-Unreleased
-----------
-- Support PhpStorm 2026.2 (`262.*`).
+1.2.0 - July 18, 2026
+----------------------
+- Support PhpStorm 2026.2 (`262.*`) while retaining compatibility with PhpStorm 2024.1 through 2026.1.
+- Restore navigation from confirmed Yii Object Factory configuration keys to writable fields and setters without adding references to ordinary array keys.
+- Make migration Apply, Undo, and Redo selection deterministic and execute applicable migrations in chronological order regardless of the current tree sort direction.
+- Rebuild the migration tree from command snapshots while preserving expanded nodes and the selected migration.
+- Handle empty and short relative migration paths safely.
+- Restore automatic completion popups in method arguments and move completion triggers to supported PhpStorm APIs.
+- Isolate optional Twig view support so the plugin continues to provide PHP and Smarty view support when the Twig plugin is unavailable.
+- Remove the legacy startup update notification and the obsolete Remote CLI support claim.
+- Modernize deprecated IntelliJ Platform APIs and Java internals with no additional plugin functionality changes.
 
 1.1.0 - July 16, 2026
 ----------------------
